@@ -1,0 +1,353 @@
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:34.566Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:37.868Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:38.033Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:38.197Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:38.351Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:38.504Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:38.648Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:38.801Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:38.961Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:39.122Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:39.259Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:39.413Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:39.557Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:39.708Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:39.863Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:40.025Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:40.160Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 8
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:19:40.377Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 7
+    [item_id] => 6582bffba6ae1
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:42:09.862Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 7
+    [item_id] => 6582c3387093b
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:44:37.808Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 7
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:47:10.724Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 7
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:47:12.355Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 7
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:47:13.153Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 7
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:47:13.366Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 9
+    [item_id] => 6582bffba6ae1
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:54:38.706Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 9
+    [item_id] => 6582bffba6ae1
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:57:17.957Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 9
+    [item_id] => 6582c3387093b
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T15:58:50.378Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: 
+Invalid data
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 9
+    [item_id] => 659a815c89dab
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T16:00:59.143Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 10
+    [item_id] => 6582c072008fc
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T16:09:11.870Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 10
+    [item_id] => 6582c072008fc
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T16:09:22.461Z
+)
+
+Item not found or already accepted
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 10
+    [item_id] => 6582c3387093b
+    [quantity] => 10
+    [citizen_acceptance_date] => 2024-08-17T16:09:50.660Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 12
+    [item_id] => 6582c072008fc
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T16:23:47.110Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 12
+    [item_id] => 6582c072008fc
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T16:38:14.088Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 10
+    [item_id] => 6582c072008fc
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T16:41:21.618Z
+)
+
+Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 12
+    [item_id] => 6582c072008fc
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-17T16:52:15.592Z
+)
+
+Debug info: Starting JSON output

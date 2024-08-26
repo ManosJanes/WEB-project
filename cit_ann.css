@@ -1,0 +1,88 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.announcement {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin: 20px 0;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+}
+
+.announcement h1 {
+    margin: 0 0 20px;
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+}
+
+.announcement-item {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+.announcement-item:last-child {
+    border-bottom: none;
+}
+
+.item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.item p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.item button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.item button:hover {
+    background-color: #218838;
+}
+
+.action-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+    background-color: #218838;
+}
+
+.action-button:focus {
+    outline: none;
+}
+
+button:focus {
+    outline: none;
+}

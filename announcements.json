@@ -1,0 +1,390 @@
+[
+    {
+        "ann_id": 1,
+        "items": [
+            {
+                "itemId": "6582bffba6ae1",
+                "acceptedBy": null,
+                "quantity": "3",
+                "created_at": "2024-07-29 19:39:17",
+                "accepted_at": null,
+                "completed_at": null,
+                "rescuerName": null,
+                "rescuerSurname": null
+            },
+            {
+                "itemId": "659a815c89dab",
+                "acceptedBy": "95",
+                "quantity": "1",
+                "created_at": "2024-07-30 22:52:44",
+                "accepted_at": "2024-07-29 18:47:18",
+                "completed_at": null,
+                "rescuerName": "Michalis",
+                "rescuerSurname": "Zannis"
+            }
+        ]
+    },
+    {
+        "ann_id": 2,
+        "items": [
+            {
+                "itemId": "6582bffba6ae1",
+                "acceptedBy": "16",
+                "quantity": "1",
+                "created_at": "2024-08-06 20:28:39",
+                "accepted_at": "2024-08-08 17:42:24",
+                "completed_at": null,
+                "rescuerName": "Michalis",
+                "rescuerSurname": "Zannis"
+            },
+            {
+                "itemId": "6582bffba6ae1",
+                "acceptedBy": null
+            },
+            {
+                "itemId": "6582bffba6ae1",
+                "acceptedBy": null
+            },
+            {
+                "itemId": "6582bffba6ae1",
+                "acceptedBy": null
+            }
+        ]
+    },
+    {
+        "ann_id": 3,
+        "items": [
+            {
+                "itemId": "6582c072008fc",
+                "acceptedBy": "95",
+                "quantity": "4",
+                "created_at": "2024-08-06 20:33:11",
+                "accepted_at": null,
+                "completed_at": null
+            },
+            {
+                "itemId": "6582bffba6ae1",
+                "acceptedBy": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 4,
+        "announcement_created_at": "2024-08-17T14:24:32.353Z",
+        "items": [
+            {
+                "item_id": "6582bffba6ae1",
+                "requested_quantity": null,
+                "citizen_id": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null,
+                "acceptedBy": "16",
+                "quantity": "5",
+                "created_at": null,
+                "accepted_at": null,
+                "completed_at": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "requested_quantity": null,
+                "citizen_id": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 5,
+        "announcement_created_at": "2024-08-17T14:31:12.602Z",
+        "items": [
+            {
+                "item_id": "6582bffba6ae1",
+                "requested_quantity": null,
+                "citizen_id": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "requested_quantity": null,
+                "citizen_id": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "659a815c89dab",
+                "requested_quantity": null,
+                "citizen_id": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 6,
+        "announcement_created_at": "2024-08-17T14:31:36.285Z",
+        "items": [
+            {
+                "item_id": "6582bffba6ae1",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:00:57.375Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:02:52.563Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "659a815c89dab",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:08:13.694Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 7,
+        "announcement_created_at": "2024-08-17T15:12:25.678Z",
+        "items": [
+            {
+                "item_id": "6582bffba6ae1",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:42:09.862Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:44:37.808Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "659a815c89dab",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:47:10.724Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 8,
+        "announcement_created_at": "2024-08-17T15:12:32.535Z",
+        "items": [
+            {
+                "item_id": "6582c3387093b",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:14:45.392Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:16:19.385Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "659a815c89dab",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:19:34.566Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 9,
+        "announcement_created_at": "2024-08-17T15:48:17.585Z",
+        "items": [
+            {
+                "item_id": "6582bffba6ae1",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:54:38.706Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T15:58:50.378Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "659a815c89dab",
+                "citizen_id": "16",
+                "quantity": "5",
+                "citizen_acceptance_date": "2024-08-17T16:00:59.143Z",
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 10,
+        "announcement_created_at": "2024-08-17T15:48:23.157Z",
+        "items": [
+            {
+                "item_id": "6582c072008fc",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "659a815c89dab",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 11,
+        "announcement_created_at": "2024-08-17T15:48:28.584Z",
+        "items": [
+            {
+                "item_id": "6582c072008fc",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582bffba6ae1",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "659a815c89dab",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    },
+    {
+        "announcement_id": 12,
+        "announcement_created_at": "2024-08-17T15:48:39.223Z",
+        "items": [
+            {
+                "item_id": "6582c072008fc",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582bffba6ae1",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            },
+            {
+                "item_id": "6582c3387093b",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
+    }
+]

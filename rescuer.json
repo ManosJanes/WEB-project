@@ -1,0 +1,120 @@
+{
+    "items": [
+        {
+            "id": "6582bffba6ae1",
+            "name": "Cake",
+            "category": "food",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 361
+                },
+                {
+                    "detail_name": "Color",
+                    "detail_value": "Brown"
+                }
+            ],
+            "rescuerId": 3
+        },
+        {
+            "id": "6582c3387093b",
+            "name": "T-shirts",
+            "category": "Clothes",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 129
+                },
+                {
+                    "detail_name": "Size",
+                    "detail_value": "XL"
+                }
+            ],
+            "rescuerId": 3
+        },
+        {
+            "id": "6582c072008fc",
+            "name": "Hansaplast",
+            "category": "First aids",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 121
+                },
+                {
+                    "detail_name": "Color",
+                    "detail_value": "Gray"
+                }
+            ],
+            "rescuerId": 3
+        },
+        {
+            "id": "6582c3387093b",
+            "name": "T-shirts",
+            "category": "Clothes",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 5
+                },
+                {
+                    "detail_name": "Size",
+                    "detail_value": "XL"
+                }
+            ],
+            "rescuerId": 5
+        },
+        {
+            "id": "659a815c89dab",
+            "name": "Milk",
+            "category": "drinks",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 419
+                }
+            ],
+            "rescuerId": 3
+        },
+        {
+            "id": "6582c072008ic",
+            "name": "Hansaplast",
+            "category": "First aids",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 115
+                }
+            ],
+            "rescuerId": 3
+        },
+        {
+            "id": "6582bffba6ae1",
+            "name": "Cake",
+            "category": "food",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 3
+                },
+                {
+                    "detail_name": "Color",
+                    "detail_value": "Brown"
+                }
+            ],
+            "rescuerId": 5
+        },
+        {
+            "id": "6582c072008ic",
+            "name": "Hansaplast",
+            "category": "First aids",
+            "details": [
+                {
+                    "detail_name": "Quantity",
+                    "detail_value": 2
+                }
+            ],
+            "rescuerId": 5
+        }
+    ]
+}
