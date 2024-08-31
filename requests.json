@@ -38,11 +38,11 @@
     },
     {
         "request_id": "66a7a6ea0a4cf",
-        "user_id": "95",
+        "user_id": "16",
         "item_id": "6582c3387093b",
         "people_count": "4",
-        "status": "Accepted by rescuer",
-        "accepted_at": "2024-08-09 11:52:20",
+        "status": "Pending",
+        "accepted_at": null,
         "completed_at": null,
         "rescuer_id": "3",
         "rescuer_name": null,
@@ -72,10 +72,20 @@
         "people_count": "2",
         "status": "Completed",
         "accepted_at": "2024-08-07 12:27:22",
-        "completed_at": "2024-08-09 11:51:04",
+        "completed_at": "2024-08-30 16:21:56",
         "created_at": "2024-08-06 20:29:44",
         "rescuer_id": "3",
         "rescuer_name": "Michalis",
         "rescuer_surname": "Zannis"
+    },
+    {
+        "request_id": "66cfa6286ac28",
+        "user_id": "16",
+        "item_id": "6582bffba6ae1",
+        "people_count": "4",
+        "status": "Pending",
+        "accepted_at": null,
+        "completed_at": null,
+        "created_at": "2024-08-28 22:35:20"
     }
 ]

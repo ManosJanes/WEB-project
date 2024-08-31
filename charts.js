@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             myChart = new Chart(ctx, {
-                type: document.getElementById('chartType').value,
+                type: 'bar', // Set the chart type to 'bar' by default
                 data: {
                     labels: ['Unaccepted Requests', 'Completed Requests', 'Unaccepted Donations', 'Completed Donations'],
                     datasets: [{

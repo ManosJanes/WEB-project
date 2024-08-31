@@ -81,17 +81,17 @@ $acceptedAnnouncements = [];
 foreach ($announcements as $announcement) {
     foreach ($announcement['items'] as $item) {
         // Check if the item has an accepted_at date and matches the rescuer's name and surname
-        if (empty($item['completed_at']) && !empty($item['accepted_at']) &&
-            !empty($item['rescuerName']) && $item['rescuerName'] === $rescuerName &&
-            !empty($item['rescuerSurname']) && $item['rescuerSurname'] === $rescuerSurname) {
+        if (empty($item['delivery_completion_date']) && !empty($item['rescuer_acceptance_date']) &&
+            !empty($item['rescuer_first_name']) && $item['rescuer_first_name'] === $rescuerName &&
+            !empty($item['rescuer_last_name']) && $item['rescuer_last_name'] === $rescuerSurname) {
 
             $acceptedAnnouncements[] = [
-                'ann_id' => $announcement['ann_id'],
-                'itemId' => $item['itemId'],
+                'announcement_id' => $announcement['announcement_id'],
+                'item_id' => $item['item_id'],
                 'quantity' => $item['quantity'],
-                'created_at' => $item['created_at'],
-                'rescuerName' => $item['rescuerName'],
-                'rescuerSurname' => $item['rescuerSurname'],
+                'citizen_acceptance_date' => $item['citizen_acceptance_date'],
+                'rescuer_first_name' => $item['rescuer_first_name'],
+                'rescuer_last_name' => $item['rescuer_last_name'],
             ];
         }
     }
@@ -165,16 +165,16 @@ foreach ($acceptedAnnouncements as &$announcement) {
         </tr>
         <?php foreach ($acceptedAnnouncements as $announcement): ?>
         <tr>
-            <td><?php echo htmlspecialchars($announcement['ann_id'] ?? ''); ?></td>
-            <td><?php echo htmlspecialchars($announcement['itemId'] ?? ''); ?></td>
+            <td><?php echo htmlspecialchars($announcement['announcement_id'] ?? ''); ?></td>
+            <td><?php echo htmlspecialchars($announcement['item_id'] ?? ''); ?></td>
             <td><?php echo htmlspecialchars($announcement['quantity'] ?? ''); ?></td>
-            <td><?php echo htmlspecialchars($announcement['created_at'] ?? ''); ?></td>
+            <td><?php echo htmlspecialchars($announcement['citizen_acceptance_date'] ?? ''); ?></td>
             <td><?php echo htmlspecialchars($announcement['userName'] ?? ''); ?></td>
             <td><?php echo htmlspecialchars($announcement['userSurname'] ?? ''); ?></td>
             <td><?php echo htmlspecialchars($announcement['userPhone'] ?? ''); ?></td>
             <td>
-                <button onclick="updateTask('cancel', '<?php echo $announcement['itemId']; ?>', 'announcement')">Cancel</button>
-                <button onclick="handleAnnouncementCompletion('<?php echo $announcement['itemId']; ?>')">Complete</button>
+                <button onclick="updateTask('cancel', '<?php echo $announcement['item_id']; ?>', 'announcement')">Cancel</button>
+                <button onclick="handleAnnouncementCompletion('<?php echo $announcement['item_id']; ?>')">Complete</button>
             </td>
         </tr>
         <?php endforeach; ?>

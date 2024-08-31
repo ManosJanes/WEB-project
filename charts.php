@@ -26,12 +26,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     <div class="container">
         <h1>Admin Dashboard - Metrics</h1>
         <form id="filterForm">
-            <label for="chartType">Chart Type:</label>
-            <select id="chartType" name="chartType">
-                <option value="bar">Bar</option>
-                <option value="line">Line</option>
-                <option value="pie">Pie</option>
-            </select>
+            <!-- Removed the Chart Type selection -->
             
             <label for="startDate">Start Date:</label>
             <input type="date" id="startDate" name="startDate">

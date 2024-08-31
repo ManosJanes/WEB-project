@@ -23,7 +23,7 @@
             "details": [
                 {
                     "detail_name": "Quantity",
-                    "detail_value": 129
+                    "detail_value": 139
                 },
                 {
                     "detail_name": "Size",
@@ -71,7 +71,7 @@
             "details": [
                 {
                     "detail_name": "Quantity",
-                    "detail_value": 419
+                    "detail_value": 417
                 }
             ],
             "rescuerId": 3

@@ -43,7 +43,7 @@ if (isset($_POST['update_marker']) && $_POST['update_marker'] == true) {
     exit();
 }
 
-// Check if the request is for accepting an announcement
+// Check if the request is for accepting an announcement Manos
 if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == true) {
     $announcementId = $_POST['announcementId'];
     $itemId = $_POST['itemId'];
@@ -54,7 +54,7 @@ if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == tru
     // Load and decode the JSON file
     $jsonAnnouncementsData = file_get_contents('announcements.json');
     $announcements = json_decode($jsonAnnouncementsData, true);
-
+    
     // Find the specific announcement and item to update MANOS
     $announcementFound = false;
     foreach ($announcements as &$announcement) {
@@ -163,6 +163,10 @@ $requests = json_decode($jsonRequestsData, true);
 $jsonAnnouncementsData = file_get_contents('announcements.json');
 $announcements = json_decode($jsonAnnouncementsData, true);
 
+// Debug: Dump the contents of the $announcements array
+//var_dump($announcements);
+//exit; // Stop further execution to inspect the output
+
 $citizenData = [];
 
 // Collect all requests by user ID
@@ -238,6 +242,9 @@ if (!empty($citizenIds)) {
 
     while ($row = $resultCitizens->fetch_assoc()) {
         $citizenId = $row['cit_id'];
+
+    
+
         $citizenMarkers[] = [
             'cit_id' => $citizenId,
             'cit_name' => $row['cit_name'],
@@ -249,6 +256,9 @@ if (!empty($citizenIds)) {
             'announcements' => $citizenData[$citizenId]['announcements']
         ];
     }
+
+    // Debug: Log the final $citizenMarkers array
+    error_log(print_r($citizenMarkers, true));
 
     $stmtCitizens->close();
 }
@@ -338,6 +348,7 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
+        console.log('JavaScript Loaded'); //manos
         var mapElement = document.getElementById('map');
         
         var adminLat = mapElement.getAttribute('data-admin-lat');
@@ -346,6 +357,9 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
         var rescuerLng = mapElement.getAttribute('data-rescuer-lng');
         var citizenMarkers = JSON.parse(mapElement.getAttribute('data-citizen-markers'));
         var announcements = JSON.parse(mapElement.getAttribute('data-announcements'));
+
+        // Add this log to inspect the citizenMarkers data
+        console.log('Citizen Markers:', citizenMarkers);
 
         var map = L.map('map').setView([rescuerLat, rescuerLng], 13);
 
@@ -493,14 +507,67 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
         });
 
         window.acceptRequest = function(requestId) {
-            // Logic to accept request (e.g., send AJAX request)
-            alert("Accepted request " + requestId);
-        };
+    console.log('acceptRequest triggered for requestId:', requestId);
+    
+    fetch('res_map.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            accept_request: true,
+            requestId: requestId
+        }),
+    })
+    .then(response => {
+        console.log('Response:', response);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Data:', data);
+        if (data.success) {
+            alert('Request accepted successfully.');
+        } else {
+            alert('Failed to accept request: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+};
+
 
         window.acceptAnnouncement = function(announcementId, itemId) {
-            // Logic to accept announcement (e.g., send AJAX request) MANOS
-            alert("Accepted announcement " + announcementId + " for item " + itemId);
-        };
+    console.log('acceptAnnouncement triggered for announcementId:', announcementId, 'itemId:', itemId);
+    
+    fetch('res_map.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            accept_announcement: true,
+            announcementId: announcementId,
+            itemId: itemId
+        }),
+    })
+    .then(response => {
+        console.log('Response:', response);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Data:', data);
+        if (data.success) {
+            alert('Announcement accepted successfully.');
+        } else {
+            alert('Failed to accept announcement: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+};
+
     });
     </script>
 </body>

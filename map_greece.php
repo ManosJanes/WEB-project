@@ -70,13 +70,13 @@ while ($rescuerMarker = $resultRescuerMarker->fetch_assoc()) {
     $filteredAnnouncements = [];
     foreach ($announcements as $announcement) {
         foreach ($announcement['items'] as $item) {
-            if (isset($item['rescuerName'], $item['rescuerSurname']) &&
-                $item['rescuerName'] === $rescuerMarker['res_name'] &&
-                $item['rescuerSurname'] === $rescuerMarker['res_surname'] &&
-                is_null($item['completed_at'])) {
+            if (isset($item['rescuer_first_name'], $item['rescuer_last_name']) &&
+                $item['rescuer_first_name'] === $rescuerMarker['res_name'] &&
+                $item['rescuer_last_name'] === $rescuerMarker['res_surname'] &&
+                is_null($item['delivery_completion_date'])) {
                 $filteredAnnouncements[] = [
-                    'created_at' => $item['created_at'] ?? null,
-                    'ann_id' => $announcement['ann_id'] ?? null,
+                    'citizen_acceptance_date' => $item['citizen_acceptance_date'] ?? null,
+                    'announcement_id' => $announcement['announcement_id'] ?? null,
                     'item_id' => $item['itemId'] ?? null,
                     'quantity' => $item['quantity'] ?? null,
                     'citizen_id' => $item['citizen_id'] ?? null  // Add citizen_id
@@ -162,12 +162,12 @@ foreach ($announcements as $announcement) {
         }
 
         $citizenData[$userId]['announcements'][] = [
-            'created_at' => $item['created_at'] ?? null,
-            'ann_id' => $announcement['ann_id'] ?? null,
-            'item_id' => $item['itemId'] ?? null,
+            'citizen_acceptance_date' => $item['citizen_acceptance_date'] ?? null,
+            'announcement_id' => $announcement['announcement_id'] ?? null,
+            'item_id' => $item['item_id'] ?? null,
             'quantity' => $item['quantity'] ?? null,
-            'accepted_at' => $item['accepted_at'] ?? null,
-            'completed_at' => $item['completed_at'] ?? null,
+            'rescuer_acceptance_date' => $item['rescuer_acceptance_date'] ?? null,
+            'delivery_completion_date' => $item['delivery_completion_date'] ?? null,
         ];
     }
 }
