@@ -1,28 +1,66 @@
 [
     {
-        "request_id": "66d3886e4da11",
+        "request_id": "66d465eef0d55",
+        "user_id": "16",
+        "item_id": "6582bffba6ae1",
+        "people_count": "1",
+        "status": "Pending",
+        "accepted_at": null,
+        "completed_at": null,
+        "created_at": "2024-09-01 13:02:38",
+        "rescuerName": null,
+        "rescuerSurname": null
+    },
+    {
+        "request_id": "66d465f4181a4",
         "user_id": "16",
         "item_id": "66d3681ed0671",
+        "people_count": "2",
+        "status": "Accepted by rescuer",
+        "accepted_at": "2024-09-01 15:04:51",
+        "completed_at": null,
+        "created_at": "2024-09-01 13:02:44",
+        "rescuerName": "Michalis",
+        "rescuerSurname": "Zannis"
+    },
+    {
+        "request_id": "66d466175008e",
+        "user_id": "16",
+        "item_id": "6582c072008fc",
+        "people_count": "3",
+        "status": "Pending",
+        "accepted_at": null,
+        "completed_at": null,
+        "created_at": "2024-09-01 13:03:19"
+    },
+    {
+        "request_id": "66d4661b69f14",
+        "user_id": "16",
+        "item_id": "6582c3387093b",
+        "people_count": "4",
+        "status": "Pending",
+        "accepted_at": null,
+        "completed_at": null,
+        "created_at": "2024-09-01 13:03:23"
+    },
+    {
+        "request_id": "66d4661facb6d",
+        "user_id": "16",
+        "item_id": "659a815c89dab",
         "people_count": "5",
         "status": "Pending",
         "accepted_at": null,
         "completed_at": null,
-        "created_at": "2024-08-31 21:17:34",
-        "rescuerName": "Michalis",
-        "rescuerSurname": "Zannis",
-        "rescuer_name": null,
-        "rescuer_surname": null
+        "created_at": "2024-09-01 13:03:27"
     },
     {
-        "request_id": "66d388b027777",
+        "request_id": "66d46623ec278",
         "user_id": "16",
-        "item_id": "66d3681ed0671",
+        "item_id": "66d368d9a597d",
         "people_count": "6",
-        "status": "Accepted by rescuer",
-        "accepted_at": "2024-08-31 23:19:59",
+        "status": "Pending",
+        "accepted_at": null,
         "completed_at": null,
-        "created_at": "2024-08-31 21:18:40",
-        "rescuerName": "Michalis",
-        "rescuerSurname": "Zannis"
+        "created_at": "2024-09-01 13:03:31"
     }
 ]

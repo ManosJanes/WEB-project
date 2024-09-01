@@ -20,8 +20,8 @@ if ($type == 'request') {
         if ($task['request_id'] == $id) {
             $task['status'] = 'Pending';
             $task['accepted_at'] = null;
-            $task['rescuer_name'] = null;
-            $task['rescuer_surname'] = null;
+            $task['rescuerName'] = null;
+            $task['rescuerSurname'] = null;
             break;
         }
     }

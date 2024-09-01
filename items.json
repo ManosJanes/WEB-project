@@ -31,17 +31,6 @@
             ]
         },
         {
-            "id": "6582c072008ic",
-            "name": "Hansaplast",
-            "category": "First aids",
-            "details": [
-                {
-                    "detail_name": "Quantity",
-                    "detail_value": 40
-                }
-            ]
-        },
-        {
             "id": "6582c3387093b",
             "name": "T-shirts",
             "category": "Clothes",

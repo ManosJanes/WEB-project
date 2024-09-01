@@ -431,7 +431,7 @@ function acceptRequest(requestId) {
 
                     // Add requests to the popup content
                     marker.requests.forEach(function(request) {
-                        if (request.status !== "Completed") {
+                        if (request.status !== "Completed" && request.status !== "Cancelled") {
                             var requestContent = `
                                 <b>Request ID:</b> ${request.request_id}<br>
                                 <b>Item ID:</b> ${request.item_id}<br>
@@ -441,7 +441,7 @@ function acceptRequest(requestId) {
                             `;
                         }
 
-                        if (request.status !== "Completed") {
+                        if (request.status !== "Completed" && request.status !== "Cancelled") {
                             if (request.status !== "Accepted by rescuer") {
                                 requestContent += `
                                     <button onclick="acceptRequest('${request.request_id}')">Accept Request</button>
@@ -466,7 +466,7 @@ function acceptRequest(requestId) {
 
                     // Add announcements to the popup content
                     marker.announcements.forEach(function(announcement) {
-                        if (!announcement.completed_at && showAnnouncements) {
+                        if (!announcement.delivery_completion_date && showAnnouncements) {
                             var announcementContent = `
                                 <b>Announcement ID:</b> ${announcement.announcement_id}<br>
                                 <b>Item ID:</b> ${announcement.item_id}<br>

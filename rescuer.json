@@ -23,7 +23,7 @@
             "details": [
                 {
                     "detail_name": "Quantity",
-                    "detail_value": 142
+                    "detail_value": 147
                 },
                 {
                     "detail_name": "Size",
@@ -72,18 +72,6 @@
                 {
                     "detail_name": "Quantity",
                     "detail_value": 415
-                }
-            ],
-            "rescuerId": 3
-        },
-        {
-            "id": "6582c072008ic",
-            "name": "Hansaplast",
-            "category": "First aids",
-            "details": [
-                {
-                    "detail_name": "Quantity",
-                    "detail_value": 115
                 }
             ],
             "rescuerId": 3
