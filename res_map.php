@@ -19,8 +19,8 @@ $rescuerResult = $stmtRescuerDetails->get_result();
 $rescuerDetails = $rescuerResult->fetch_assoc();
 
 $rescuerId = $_SESSION['user_id'];
-$rescuerName = $rescuerDetails['res_name'];  
-$rescuerSurname = $rescuerDetails['res_surname'];  
+$rescuerName = $rescuerDetails['res_name'];
+$rescuerSurname = $rescuerDetails['res_surname'];
 
 // Function to count total accepted items
 function countTotalAcceptedItems($rescuerName, $rescuerSurname) {
@@ -56,40 +56,10 @@ function countTotalAcceptedItems($rescuerName, $rescuerSurname) {
     return $totalAccepted;
 }
 
-$totalAcceptedItems = countTotalAcceptedItems($rescuerName, $rescuerSurname);
-
-// Check if the rescuer has reached the limit
-if ($totalAcceptedItems >= 4) {
-    echo "<script>alert('You have already accepted 4 tasks. You cannot accept more.');</script>";
-}
-
-// Check if the request is for updating the marker
-if (isset($_POST['update_marker']) && $_POST['update_marker'] == true) {
-    $newLat = $_POST['lat'];
-    $newLng = $_POST['lng'];
-
-    $sqlUpdate = "UPDATE rescuer SET res_lat = ?, res_lng = ? WHERE res_id = ?";
-    $stmtUpdate = $con->prepare($sqlUpdate);
-
-    if (!$stmtUpdate) {
-        die("Error in preparing statement: " . $con->error);
-    }
-
-    $stmtUpdate->bind_param("ddi", $newLat, $newLng, $_SESSION['user_id']);
-    $stmtUpdate->execute();
-
-    if ($stmtUpdate->error) {
-        error_log("Error updating position: " . $stmtUpdate->error);
-        echo json_encode(['success' => false, 'message' => 'Error updating position.']);
-        exit();
-    }
-
-    echo json_encode(['success' => true, 'message' => 'Position updated successfully.']);
-    exit();
-}
-
 // Check if the request is for accepting an announcement
 if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == true) {
+    $totalAcceptedItems = countTotalAcceptedItems($rescuerName, $rescuerSurname);
+
     if ($totalAcceptedItems < 4) {
         $announcementId = $_POST['announcementId'];
         $itemId = $_POST['itemId'];
@@ -98,7 +68,7 @@ if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == tru
         // Load and decode the JSON file
         $jsonAnnouncementsData = file_get_contents('announcements.json');
         $announcements = json_decode($jsonAnnouncementsData, true);
-        
+
         // Find the specific announcement and item to update
         $announcementFound = false;
         foreach ($announcements as &$announcement) {
@@ -132,6 +102,8 @@ if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == tru
 
 // Check if the request is for accepting a request
 if (isset($_POST['accept_request']) && $_POST['accept_request'] == true) {
+    $totalAcceptedItems = countTotalAcceptedItems($rescuerName, $rescuerSurname);
+
     if ($totalAcceptedItems < 4) {
         $requestId = $_POST['requestId'];
         $acceptedAt = date('Y-m-d H:i:s');
@@ -164,6 +136,30 @@ if (isset($_POST['accept_request']) && $_POST['accept_request'] == true) {
     } else {
         // Display an error message
         echo json_encode(['success' => false, 'message' => 'You cannot accept more than 4 tasks at a time.']);
+    }
+    exit();
+}
+
+// Check if the request is for updating the marker
+if (isset($_POST['update_marker']) && $_POST['update_marker'] == true) {
+    $newLat = $_POST['lat'];
+    $newLng = $_POST['lng'];
+
+    $sqlUpdate = "UPDATE rescuer SET res_lat = ?, res_lng = ? WHERE res_id = ?";
+    $stmtUpdate = $con->prepare($sqlUpdate);
+
+    if (!$stmtUpdate) {
+        error_log("Error in preparing statement: " . $con->error);
+        echo json_encode(['success' => false, 'message' => 'Error preparing statement.']);
+        exit();
+    }
+
+    $stmtUpdate->bind_param("ddi", $newLat, $newLng, $_SESSION['user_id']);
+    if ($stmtUpdate->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Position updated successfully.']);
+    } else {
+        error_log("Error updating position: " . $stmtUpdate->error);
+        echo json_encode(['success' => false, 'message' => 'Error executing statement.']);
     }
     exit();
 }
@@ -401,7 +397,7 @@ if (!empty($citizenIds)) {
             var citizenMarkers = JSON.parse(mapElement.getAttribute('data-citizen-markers'));
             var announcements = JSON.parse(mapElement.getAttribute('data-announcements'));
 
-            var map = L.map('map').setView([0, 0], 2);
+            var map = L.map('map').setView([rescuerLat, rescuerLng], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -412,18 +408,64 @@ if (!empty($citizenIds)) {
 
             // Display marker for the logged-in rescuer
             var rescuerMarker = L.marker([rescuerLat, rescuerLng], { draggable: false }).addTo(map);
+            var originalPosition = rescuerMarker.getLatLng(); // Save the original position
 
-            // Center the map to the rescuer's position
-            map.setView([rescuerLat, rescuerLng], 13);
+            var wasDragged = false;
 
-            // Layer Groups
-            var citizenLayerGroup = L.layerGroup().addTo(map);
-            var lineLayerGroup = L.layerGroup().addTo(map);
+            function changeLocation() {
+                if (!wasDragged) {
+                    // Enable dragging when the button is clicked for the first time
+                    rescuerMarker.dragging.enable();
+                    wasDragged = true;
+                } else {
+                    // Disable dragging when the button is clicked again
+                    rescuerMarker.dragging.disable();
+                    wasDragged = false;
 
-            var showAcceptedRequests = true;
-            var showPendingRequests = true;
-            var showAnnouncements = true;
-            var showLines = true;
+                    if (confirm('Do you want to keep this position?')) {
+                        var newLatLng = rescuerMarker.getLatLng();
+                        localStorage.setItem('markerPosition', JSON.stringify(newLatLng));
+
+                        // Update the marker position in the same file
+                        updateMarkerPosition(newLatLng.lat, newLatLng.lng)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert('Position updated successfully.');
+                                } else {
+                                    alert('Error updating position. Please try again.');
+                                    // Reset the marker to its original position in case of error
+                                    rescuerMarker.setLatLng(originalPosition);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred while updating the position.');
+                                // Reset the marker to its original position in case of error
+                                rescuerMarker.setLatLng(originalPosition);
+                            });
+                    } else {
+                        // If the user cancels, reset the marker position to the original
+                        rescuerMarker.setLatLng(originalPosition);
+                    }
+                }
+            }
+
+            function updateMarkerPosition(lat, lng) {
+                return fetch('res_map.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        update_marker: true,
+                        lat: lat,
+                        lng: lng,
+                    }),
+                });
+            }
+
+            document.getElementById('changeLocation').addEventListener('click', changeLocation);
 
             function addMarkersAndLines() {
                 citizenLayerGroup.clearLayers();
@@ -509,60 +551,14 @@ if (!empty($citizenIds)) {
                 });
             }
 
+            var citizenLayerGroup = L.layerGroup().addTo(map);
+            var lineLayerGroup = L.layerGroup().addTo(map);
+            var showAcceptedRequests = true;
+            var showPendingRequests = true;
+            var showAnnouncements = true;
+            var showLines = true;
+
             addMarkersAndLines();
-
-            var wasDragged = false;
-
-            function changeLocation() {
-                if (!wasDragged) {
-                    // Enable dragging when the button is clicked for the first time
-                    rescuerMarker.dragging.enable();
-                    wasDragged = true;
-                } else {
-                    // Disable dragging when the button is clicked again
-                    rescuerMarker.dragging.disable();
-                    wasDragged = false;
-
-                    if (confirm('Do you want to keep this position?')) {
-                        var newLatLng = rescuerMarker.getLatLng();
-                        localStorage.setItem('markerPosition', JSON.stringify(newLatLng));
-
-                        // Update the marker position in the same file
-                        updateMarkerPosition(newLatLng.lat, newLatLng.lng)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    alert('Position updated successfully.');
-                                } else {
-                                    alert('Error updating position. Please try again.');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('An error occurred while updating the position.');
-                            });
-                    } else {
-                        // If the user cancels, reset the marker position to the original
-                        rescuerMarker.setLatLng(originalPosition);
-                    }
-                }
-            }
-
-            function updateMarkerPosition(lat, lng) {
-                return fetch('res_map.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        update_marker: true,
-                        lat: lat,
-                        lng: lng,
-                    }),
-                });
-            }
-
-            document.getElementById('changeLocation').addEventListener('click', changeLocation);
 
             function toggleAcceptedRequests() {
                 showAcceptedRequests = !showAcceptedRequests;
