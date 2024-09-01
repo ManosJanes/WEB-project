@@ -66,7 +66,7 @@ while ($rescuerMarker = $resultRescuerMarker->fetch_assoc()) {
     $jsonRequestsData = file_get_contents('requests.json');
     $requests = json_decode($jsonRequestsData, true);
 
-    // Filter announcements for the rescuer MANOS
+    // Filter announcements for the rescuer
     $filteredAnnouncements = [];
     foreach ($announcements as $announcement) {
         foreach ($announcement['items'] as $item) {
@@ -149,7 +149,7 @@ foreach ($requests as $request) {
     ];
 }
 
-// Collect all announcements by user ID MANOS
+// Collect all announcements by user ID
 foreach ($announcements as $announcement) {
     foreach ($announcement['items'] as $item) {
         $userId = (int) $item['citizen_id'];
@@ -260,7 +260,28 @@ if (!empty($citizenIds)) {
             var adminLat = parseFloat(document.getElementById('map').dataset.adminLat);
             var adminLng = parseFloat(document.getElementById('map').dataset.adminLng);
 
-            var adminMarker = L.marker([adminLat, adminLng]).addTo(map);
+            var adminIcon = L.icon({
+                iconUrl: 'blue.png',
+                iconSize: [45, 50],
+                iconAnchor: [22, 50],
+                popupAnchor: [1, -34]
+            });
+
+            var rescuerIcon = L.icon({
+                iconUrl: 'red.png',
+                iconSize: [45, 50], // Set to default Leaflet icon size
+                iconAnchor: [22, 50], // Set anchor to ensure marker is properly positioned
+                popupAnchor: [1, -34] // Popup anchor offset
+            });
+
+            var citizenIcon = L.icon({
+                iconUrl: 'purple.png',
+                iconSize: [45, 50],
+                iconAnchor: [22, 50],
+                popupAnchor: [1, -34]
+            });
+
+            var adminMarker = L.marker([adminLat, adminLng], { icon: adminIcon }).addTo(map);
 
             var rescuerMarkers = JSON.parse(document.getElementById('map').dataset.rescuerMarkers);
             var citizenMarkers = JSON.parse(document.getElementById('map').dataset.citizenMarkers);
@@ -298,7 +319,7 @@ if (!empty($citizenIds)) {
                     popupContent += '<strong>No Accepted Requests</strong><br>';
                 }
 
-                var rescuerMarker = L.marker([marker.res_lat, marker.res_lng]).bindPopup(popupContent).addTo(map);
+                var rescuerMarker = L.marker([marker.res_lat, marker.res_lng], { icon: rescuerIcon }).bindPopup(popupContent).addTo(map);
 
                 if (marker.requests.length > 0) {
                     acceptedRequestMarkers.push(rescuerMarker);
@@ -341,7 +362,7 @@ if (!empty($citizenIds)) {
                     popupContent += '<strong>No Pending Requests</strong><br>';
                 }
 
-                var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng]).bindPopup(popupContent).addTo(map);
+                var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng], { icon: citizenIcon }).bindPopup(popupContent).addTo(map);
 
                 if (marker.requests.length > 0 && marker.requests.some(request => request.status !== 'Completed')) {
                     pendingRequestMarkers.push(citizenMarker);
@@ -505,4 +526,3 @@ if (!empty($citizenIds)) {
     </script>
 </body>
 </html>
-
