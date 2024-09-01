@@ -66,6 +66,28 @@
                     "detail_value": 235
                 }
             ]
+        },
+        {
+            "id": "66d3681ed0671",
+            "name": "Macaroni",
+            "category": "food",
+            "details": [
+                {
+                    "detail_name": "quantity",
+                    "detail_value": "5"
+                }
+            ]
+        },
+        {
+            "id": "66d368d9a597d",
+            "name": "Flashlight",
+            "category": "Tools",
+            "details": [
+                {
+                    "detail_name": "Distance",
+                    "detail_value": "100m"
+                }
+            ]
         }
     ]
 }

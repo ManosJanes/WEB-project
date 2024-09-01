@@ -315,40 +315,71 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
             height: 20px;
             display: inline-block;
         }
-        .toggle-button {
-            margin: 10px;
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            cursor: pointer;
-            background-color: #f0f0f0;
-        }
-        .toggle-button.active {
-            background-color: #007bff;
-            color: #fff;
-        }
     </style>
 </head>
 <body style="margin: 0;">
-    <div>
-        <button id="toggleAcceptedRequests" class="toggle-button">Hide Accepted Requests</button>
-        <button id="togglePendingRequests" class="toggle-button">Hide Pending Requests</button>
-        <button id="toggleAnnouncements" class="toggle-button">Hide Announcements</button>
+    <div class="filter-container">
+        <button id="toggleAcceptedRequests">Toggle Accepted Requests</button>
+        <button id="togglePendingRequests">Toggle Pending Requests</button>
+        <button id="toggleAnnouncements">Toggle Announcements</button>
+        <button id="toggleLines">Toggle Lines</button>
     </div>
-    <div id="map" style="height: 70vh;"
+    <div id="map" style="height: 80vh;"
          data-admin-lat="<?php echo $adminMarker['adm_lat']; ?>"
          data-admin-lng="<?php echo $adminMarker['adm_lng']; ?>"
          data-rescuer-lat="<?php echo $rescuerMarker['res_lat']; ?>"
          data-rescuer-lng="<?php echo $rescuerMarker['res_lng']; ?>"
          data-citizen-markers='<?php echo json_encode($citizenMarkers); ?>'
          data-announcements='<?php echo json_encode($announcements); ?>'></div>
-    
-    <button id="changeLocation">Change Position</button>
-    <button onclick="window.location.href = 'tasks.php';">Your Tasks</button>
+
+    <div id="controls">
+        <button id="changeLocation">Change Position</button>
+        <button onclick="window.location.href = 'tasks.php';">Your Tasks</button>
+    </div>
 
     <script>
+
+function acceptRequest(requestId) {
+        fetch('res_map.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'accept_request=true&requestId=' + requestId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Request accepted successfully.');
+                location.reload();
+            } else {
+                alert('Error accepting request: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function acceptAnnouncement(announcementId, itemId) {
+        fetch('res_map.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'accept_announcement=true&announcementId=' + announcementId + '&itemId=' + itemId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Announcement accepted successfully.');
+                location.reload();
+            } else {
+                alert('Error accepting announcement: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
-        console.log('JavaScript Loaded'); //manos
         var mapElement = document.getElementById('map');
         
         var adminLat = mapElement.getAttribute('data-admin-lat');
@@ -358,10 +389,7 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
         var citizenMarkers = JSON.parse(mapElement.getAttribute('data-citizen-markers'));
         var announcements = JSON.parse(mapElement.getAttribute('data-announcements'));
 
-        // Add this log to inspect the citizenMarkers data
-        console.log('Citizen Markers:', citizenMarkers);
-
-        var map = L.map('map').setView([rescuerLat, rescuerLng], 13);
+        var map = L.map('map').setView([0, 0], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -373,47 +401,73 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
         // Display marker for the logged-in rescuer
         var rescuerMarker = L.marker([rescuerLat, rescuerLng], { draggable: false }).addTo(map);
 
-        // Function to add markers and lines
-        function addMarkersAndLines(showAcceptedRequests, showPendingRequests, showAnnouncements) {
+        // Center the map to the rescuer's position
+        map.setView([rescuerLat, rescuerLng], 13);
+
+        // Layer Groups
+        var citizenLayerGroup = L.layerGroup().addTo(map);
+        var lineLayerGroup = L.layerGroup().addTo(map);
+
+        var showAcceptedRequests = true;
+        var showPendingRequests = true;
+        var showAnnouncements = true;
+        var showLines = true;
+
+        function addMarkersAndLines() {
+            citizenLayerGroup.clearLayers();
+            lineLayerGroup.clearLayers();
+
             var polylines = [];
-            var polylinesMap = {}; // To manage polylines and avoid duplicates
 
             // Add citizen markers with requests and announcements
             citizenMarkers.forEach(function(marker) {
+                
                 if (marker.cit_lat && marker.cit_lng) {
-                    var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng]).addTo(map);
+                    var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng]).addTo(citizenLayerGroup);
                     var popupContent = `
                         <b>Citizen:</b> ${marker.cit_name} ${marker.cit_surname}<br>
                         <b>Phone:</b> ${marker.cit_phone}<br>
-                        <b>Requests:</b><br>
                     `;
 
                     // Add requests to the popup content
                     marker.requests.forEach(function(request) {
                         if (request.status !== "Completed") {
-                            if ((request.status === "Accepted by rescuer" && showAcceptedRequests) ||
-                                (request.status !== "Accepted by rescuer" && showPendingRequests)) {
-                                popupContent += `
-                                    <b>Request ID:</b> ${request.request_id}<br>
-                                    <b>Item ID:</b> ${request.item_id}<br>
-                                    <b>People Count:</b> ${request.people_count}<br>
-                                    <b>Accepted At:</b> ${request.accepted_at}<br>
-                                    <b>Status:</b> ${request.status}<br>
+                            var requestContent = `
+                                <b>Request ID:</b> ${request.request_id}<br>
+                                <b>Item ID:</b> ${request.item_id}<br>
+                                <b>People Count:</b> ${request.people_count}<br>
+                                <b>Accepted At:</b> ${request.accepted_at}<br>
+                                <b>Status:</b> ${request.status}<br>
+                            `;
+                        }
+
+                        if (request.status !== "Completed") {
+                            if (request.status !== "Accepted by rescuer") {
+                                requestContent += `
+                                    <button onclick="acceptRequest('${request.request_id}')">Accept Request</button>
                                 `;
-                                if (request.status !== "Accepted by rescuer") {
-                                    popupContent += `
-                                        <button onclick="acceptRequest('${request.request_id}')">Accept Request</button>
-                                    `;
-                                }
-                                popupContent += `<hr>`;
                             }
+                            requestContent += `<hr>`;
+                        }
+                        
+
+                        if (request.status === "Accepted by rescuer" && showAcceptedRequests) {
+                            popupContent += requestContent;
+                            if (showLines) {
+                                polylines.push(L.polyline([
+                                    [rescuerLat, rescuerLng],
+                                    [marker.cit_lat, marker.cit_lng]
+                                ], { color: 'blue' }).addTo(lineLayerGroup));
+                            }
+                        } else if (request.status !== "Accepted by rescuer" && showPendingRequests) {
+                            popupContent += requestContent;
                         }
                     });
 
-                    // Add announcements to the popup content MANOS
+                    // Add announcements to the popup content
                     marker.announcements.forEach(function(announcement) {
                         if (!announcement.completed_at && showAnnouncements) {
-                            popupContent += `
+                            var announcementContent = `
                                 <b>Announcement ID:</b> ${announcement.announcement_id}<br>
                                 <b>Item ID:</b> ${announcement.item_id}<br>
                                 <b>Quantity:</b> ${announcement.quantity}<br>
@@ -421,153 +475,107 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
                                 <b>Accepted At:</b> ${announcement.rescuer_acceptance_date || 'Not accepted yet'}<br>
                             `;
                             if (!announcement.rescuer_acceptance_date) {
-                                popupContent += `
+                                announcementContent += `
                                     <button onclick="acceptAnnouncement('${announcement.announcement_id}', '${announcement.item_id}')">Accept Announcement</button>
                                 `;
                             }
-                            popupContent += `<hr>`;
+                            announcementContent += `<hr>`;
+                            popupContent += announcementContent;
+
+                            if (announcement.rescuer_acceptance_date && showLines) {
+                                polylines.push(L.polyline([
+                                    [rescuerLat, rescuerLng],
+                                    [marker.cit_lat, marker.cit_lng]
+                                ], { color: 'green' }).addTo(lineLayerGroup));
+                            }
                         }
                     });
 
                     // Bind popup to citizen marker
                     citizenMarker.bindPopup(popupContent);
-
-                    // Draw a line from rescuer to this citizen if any requests/announcements are accepted
-                    marker.requests.forEach(function(request) {
-                        if (request.status === "Accepted by rescuer" && showAcceptedRequests) {
-                            var polylineId = `line_${rescuerLat}_${rescuerLng}_${marker.cit_lat}_${marker.cit_lng}`;
-                            if (!polylinesMap[polylineId]) {
-                                polylinesMap[polylineId] = L.polyline([
-                                    [rescuerLat, rescuerLng],
-                                    [marker.cit_lat, marker.cit_lng]
-                                ], { color: 'blue' }).addTo(map);
-                                polylines.push(polylinesMap[polylineId]);
-                            }
-                        }
-                    });
-
-                    marker.announcements.forEach(function(announcement) {
-                        if (announcement.rescuer_acceptance_date && showAnnouncements) {
-                            var polylineId = `line_${rescuerLat}_${rescuerLng}_${marker.cit_lat}_${marker.cit_lng}`;
-                            if (!polylinesMap[polylineId]) {
-                                polylinesMap[polylineId] = L.polyline([
-                                    [rescuerLat, rescuerLng],
-                                    [marker.cit_lat, marker.cit_lng]
-                                ], { color: 'green' }).addTo(map);
-                                polylines.push(polylinesMap[polylineId]);
-                            }
-                        }
-                    });
                 }
             });
-
-            return polylines;
         }
 
-        var showAcceptedRequests = true;
-        var showPendingRequests = true;
-        var showAnnouncements = true;
+        addMarkersAndLines();
 
-        var polylines = addMarkersAndLines(showAcceptedRequests, showPendingRequests, showAnnouncements);
+        var wasDragged = false;
 
-        function updatePolylines() {
-            // Remove existing polylines
-            polylines.forEach(function (polyline) {
-                map.removeLayer(polyline);
-            });
-            // Add new polylines based on current filter settings
-            polylines = addMarkersAndLines(showAcceptedRequests, showPendingRequests, showAnnouncements);
-        }
+        function changeLocation() {
+            if (!wasDragged) {
+                // Enable dragging when the button is clicked for the first time
+                rescuerMarker.dragging.enable();
+                wasDragged = true;
+            } else {
+                // Disable dragging when the button is clicked again
+                rescuerMarker.dragging.disable();
+                wasDragged = false;
 
-        document.getElementById('toggleAcceptedRequests').addEventListener('click', function () {
-            showAcceptedRequests = !showAcceptedRequests;
-            this.classList.toggle('active');
-            updatePolylines();
-        });
+                if (confirm('Do you want to keep this position?')) {
+                    var newLatLng = rescuerMarker.getLatLng();
+                    localStorage.setItem('markerPosition', JSON.stringify(newLatLng));
 
-        document.getElementById('togglePendingRequests').addEventListener('click', function () {
-            showPendingRequests = !showPendingRequests;
-            this.classList.toggle('active');
-            updatePolylines();
-        });
-
-        document.getElementById('toggleAnnouncements').addEventListener('click', function () {
-            showAnnouncements = !showAnnouncements;
-            this.classList.toggle('active');
-            updatePolylines();
-        });
-
-        document.getElementById('changeLocation').addEventListener('click', function() {
-            var newLat = prompt("Enter new latitude for rescuer:");
-            var newLng = prompt("Enter new longitude for rescuer:");
-            if (newLat && newLng) {
-                rescuerMarker.setLatLng([newLat, newLng]);
-                map.setView([newLat, newLng]);
+                    // Update the marker position in the same file
+                    updateMarkerPosition(newLatLng.lat, newLatLng.lng)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Position updated successfully.');
+                            } else {
+                                alert('Error updating position. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while updating the position.');
+                        });
+                } else {
+                    // If the user cancels, reset the marker position to the original
+                    rescuerMarker.setLatLng(originalPosition);
+                }
             }
-        });
-
-        window.acceptRequest = function(requestId) {
-    console.log('acceptRequest triggered for requestId:', requestId);
-    
-    fetch('res_map.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            accept_request: true,
-            requestId: requestId
-        }),
-    })
-    .then(response => {
-        console.log('Response:', response);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Data:', data);
-        if (data.success) {
-            alert('Request accepted successfully.');
-        } else {
-            alert('Failed to accept request: ' + data.message);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-};
 
-
-        window.acceptAnnouncement = function(announcementId, itemId) {
-    console.log('acceptAnnouncement triggered for announcementId:', announcementId, 'itemId:', itemId);
-    
-    fetch('res_map.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            accept_announcement: true,
-            announcementId: announcementId,
-            itemId: itemId
-        }),
-    })
-    .then(response => {
-        console.log('Response:', response);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Data:', data);
-        if (data.success) {
-            alert('Announcement accepted successfully.');
-        } else {
-            alert('Failed to accept announcement: ' + data.message);
+        function updateMarkerPosition(lat, lng) {
+            return fetch('res_map.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    update_marker: true,
+                    lat: lat,
+                    lng: lng,
+                }),
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-};
 
+        document.getElementById('changeLocation').addEventListener('click', changeLocation);
+
+        function toggleAcceptedRequests() {
+            showAcceptedRequests = !showAcceptedRequests;
+            addMarkersAndLines();
+        }
+
+        function togglePendingRequests() {
+            showPendingRequests = !showPendingRequests;
+            addMarkersAndLines();
+        }
+
+        function toggleAnnouncements() {
+            showAnnouncements = !showAnnouncements;
+            addMarkersAndLines();
+        }
+
+        function toggleLines() {
+            showLines = !showLines;
+            addMarkersAndLines();
+        }
+
+        document.getElementById('toggleAcceptedRequests').addEventListener('click', toggleAcceptedRequests);
+        document.getElementById('togglePendingRequests').addEventListener('click', togglePendingRequests);
+        document.getElementById('toggleAnnouncements').addEventListener('click', toggleAnnouncements);
+        document.getElementById('toggleLines').addEventListener('click', toggleLines);
     });
     </script>
 </body>

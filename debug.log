@@ -351,3 +351,13 @@ Data received: Array
 )
 
 Debug info: Starting JSON output
+Starting PHP script
+Data received: Array
+(
+    [announcement_id] => 10
+    [item_id] => 6582c072008fc
+    [quantity] => 5
+    [citizen_acceptance_date] => 2024-08-31T18:42:32.689Z
+)
+
+Debug info: Starting JSON output

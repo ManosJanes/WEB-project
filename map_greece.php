@@ -272,7 +272,7 @@ if (!empty($citizenIds)) {
             var inactiveTaskMarkers = [];
             var polylines = [];
             var citizenRequestMarkers = []; // Citizens with accepted requests
-            var citizenAnnouncementMarkers = []; // Citizens with active announcements MANOS
+            var citizenAnnouncementMarkers = []; // Citizens with active announcements
 
             rescuerMarkers.forEach(function (marker) {
                 var popupContent = '<strong>' + marker.res_name + ' ' + marker.res_surname + '</strong><br>' +
@@ -328,7 +328,7 @@ if (!empty($citizenIds)) {
                 } else {
                     popupContent += '<strong>No Pending Announcements</strong><br>';
                 }
-                //MANOS
+
                 if (marker.requests.length > 0) {
                     popupContent += '<strong>Requests:</strong><ul>';
                     marker.requests.forEach(function (request) {
@@ -361,7 +361,7 @@ if (!empty($citizenIds)) {
                     map.removeLayer(polyline);
                 });
                 polylines = [];
-                
+
                 rescuerMarkers.forEach(function (rescuer) {
                     rescuer.announcements.forEach(function (announcement) {
                         var citizen = citizenMarkers.find(c => c.cit_id == announcement.citizen_id);
@@ -441,17 +441,67 @@ if (!empty($citizenIds)) {
                 togglePolylines(polylines);
             });
 
-            document.getElementById('changeLocation').addEventListener('click', function () {
-                var newLat = parseFloat(prompt('Enter new latitude:', adminLat));
-                var newLng = parseFloat(prompt('Enter new longitude:', adminLng));
-                if (!isNaN(newLat) && !isNaN(newLng)) {
-                    map.setView([newLat, newLng], map.getZoom());
-                    adminMarker.setLatLng([newLat, newLng]);
-                    adminLat = newLat;
-                    adminLng = newLng;
+            var wasDragged = false;
+
+            function changeLocation() {
+                if (!wasDragged) {
+                    adminMarker.dragging.enable();
+                    wasDragged = true;
+                } else {
+                    adminMarker.dragging.disable();
+                    wasDragged = false;
+
+                    if (confirm('Do you want to keep this position?')) {
+                        var newLatLng = adminMarker.getLatLng();
+                        updateMarkerPosition(adminMarker, newLatLng.lat, newLatLng.lng);
+                    } else {
+                        adminMarker.setLatLng([adminLat, adminLng]);
+                    }
                 }
-            });
+            }
+
+            function updateMarkerPosition(marker, lat, lng) {
+                fetch('map_greece.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        update_marker: true,
+                        lat: lat,
+                        lng: lng,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Position updated successfully.');
+                        updateAllAdminMarkers(data.admins);
+                    } else {
+                        alert('Error updating position. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the position.');
+                });
+            }
+
+            function updateAllAdminMarkers(admins) {
+                admins.forEach(function (admin) {
+                    if (admin.adm_id !== currentUserId) {
+                        rescuerMarkers.forEach(function (marker) {
+                            if (marker.options.adm_id === admin.adm_id) {
+                                marker.setLatLng([admin.adm_lat, admin.adm_lng]);
+                            }
+                        });
+                    }
+                });
+            }
+
+            document.getElementById('changeLocation').addEventListener('click', changeLocation);
         });
+
     </script>
 </body>
 </html>

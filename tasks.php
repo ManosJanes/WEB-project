@@ -47,6 +47,27 @@ if (!$announcements) {
     $announcements = [];
 }
 
+// Normalize data structure
+foreach ($requests as &$request) {
+    // Ensure consistent naming for rescuer name and surname
+    if (isset($request['rescuerName']) && !isset($request['rescuer_name'])) {
+        $request['rescuer_name'] = $request['rescuerName'];
+    }
+    if (isset($request['rescuerSurname']) && !isset($request['rescuer_surname'])) {
+        $request['rescuer_surname'] = $request['rescuerSurname'];
+    }
+
+    // Ensure all necessary fields are present and consistent
+    $request['rescuer_name'] = $request['rescuer_name'] ?? '';
+    $request['rescuer_surname'] = $request['rescuer_surname'] ?? '';
+    $request['created_at'] = $request['created_at'] ?? '';
+}
+
+// Debugging: Print raw request data to ensure it loads correctly
+echo "<pre>Raw Requests Data:\n";
+print_r($requests);
+echo "</pre>";
+
 // Function to fetch user details by user_id
 function fetchUserDetails($con, $userId) {
     $sql = "SELECT name, surname, phone FROM users WHERE id = ?";
@@ -73,18 +94,43 @@ function fetchAllUserDetails($con) {
 $allUserDetails = fetchAllUserDetails($con);
 
 // Filter requests and announcements
-$acceptedRequests = array_filter($requests, function($request) use ($rescuerId) {
-    return isset($request['status']) && $request['status'] === 'Accepted by rescuer' && isset($request['rescuer_id']) && $request['rescuer_id'] == $rescuerId;
-});
+$acceptedRequests = [];
+$processedRequests = [];
+
+foreach ($requests as $request) {
+    $request_id = $request['request_id'];
+
+    // Skip processing if the request is not accepted
+    if ($request['status'] !== 'Accepted by rescuer') {
+        continue;
+    }
+
+    // Add request_id to the processed list
+    if (!in_array($request_id, $processedRequests)) {
+        $processedRequests[] = $request_id;
+
+        if ($request['rescuer_name'] === $rescuerName && $request['rescuer_surname'] === $rescuerSurname) {
+            $acceptedRequests[] = $request;  // Add request to the list
+        }
+    }
+}
+
+// Debugging: Output all accepted requests to ensure they are unique and correct
+echo "<pre>Final Accepted Requests Data:\n";
+print_r($acceptedRequests);
+echo "</pre>";
 
 $acceptedAnnouncements = [];
 foreach ($announcements as $announcement) {
     foreach ($announcement['items'] as $item) {
         // Check if the item has an accepted_at date and matches the rescuer's name and surname
         if (empty($item['delivery_completion_date']) && !empty($item['rescuer_acceptance_date']) &&
-            !empty($item['rescuer_first_name']) && $item['rescuer_first_name'] === $rescuerName &&
-            !empty($item['rescuer_last_name']) && $item['rescuer_last_name'] === $rescuerSurname) {
+            $item['rescuer_first_name'] === $rescuerName &&
+            $item['rescuer_last_name'] === $rescuerSurname) {
 
+            // Fetch user details for each announcement's citizen
+            $userDetails = fetchUserDetails($con, $item['citizen_id']);
+            
             $acceptedAnnouncements[] = [
                 'announcement_id' => $announcement['announcement_id'],
                 'item_id' => $item['item_id'],
@@ -92,12 +138,15 @@ foreach ($announcements as $announcement) {
                 'citizen_acceptance_date' => $item['citizen_acceptance_date'],
                 'rescuer_first_name' => $item['rescuer_first_name'],
                 'rescuer_last_name' => $item['rescuer_last_name'],
+                'userName' => $userDetails['name'] ?? '',
+                'userSurname' => $userDetails['surname'] ?? '',
+                'userPhone' => $userDetails['phone'] ?? ''
             ];
         }
     }
 }
 
-// Append user details to requests and announcements
+// Append user details to requests
 foreach ($acceptedRequests as &$request) {
     $userDetails = $allUserDetails[$request['user_id']] ?? [];
     $request['userName'] = $userDetails['name'] ?? '';
@@ -105,11 +154,6 @@ foreach ($acceptedRequests as &$request) {
     $request['userPhone'] = $userDetails['phone'] ?? '';
 }
 
-foreach ($acceptedAnnouncements as &$announcement) {
-    $announcement['userName'] = $userDetails['name'] ?? '';
-    $announcement['userSurname'] = $userDetails['surname'] ?? '';
-    $announcement['userPhone'] = $userDetails['phone'] ?? '';
-}
 ?>
 
 <!DOCTYPE html>
