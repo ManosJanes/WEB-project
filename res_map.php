@@ -41,14 +41,16 @@ function countTotalAcceptedItems($rescuerName, $rescuerSurname) {
     // Count accepted announcements
     $announcementsData = file_get_contents('announcements.json');
     $announcements = json_decode($announcementsData, true);
-    foreach ($announcements as $announcement) {
-        foreach ($announcement['items'] as $item) {
-            if (isset($item['rescuer_first_name']) && isset($item['rescuer_last_name']) &&
-                $item['rescuer_first_name'] === $rescuerName &&
-                $item['rescuer_last_name'] === $rescuerSurname &&
-                !empty($item['rescuer_acceptance_date']) && 
-                empty($item['delivery_completion_date'])) {
-                $totalAccepted++;
+    if (is_array($announcements)) {
+        foreach ($announcements as $announcement) {
+            foreach ($announcement['items'] as $item) {
+                if (isset($item['rescuer_first_name']) && isset($item['rescuer_last_name']) &&
+                    $item['rescuer_first_name'] === $rescuerName &&
+                    $item['rescuer_last_name'] === $rescuerSurname &&
+                    !empty($item['rescuer_acceptance_date']) && 
+                    empty($item['delivery_completion_date'])) {
+                    $totalAccepted++;
+                }
             }
         }
     }
@@ -140,7 +142,7 @@ if (isset($_POST['accept_request']) && $_POST['accept_request'] == true) {
     exit();
 }
 
-// Check if the request is for updating the marker
+// Check if the request is for updating the marker position
 if (isset($_POST['update_marker']) && $_POST['update_marker'] == true) {
     $newLat = $_POST['lat'];
     $newLng = $_POST['lng'];
@@ -149,18 +151,19 @@ if (isset($_POST['update_marker']) && $_POST['update_marker'] == true) {
     $stmtUpdate = $con->prepare($sqlUpdate);
 
     if (!$stmtUpdate) {
-        error_log("Error in preparing statement: " . $con->error);
-        echo json_encode(['success' => false, 'message' => 'Error preparing statement.']);
-        exit();
+        die("Error in preparing statement: " . $con->error);
     }
 
     $stmtUpdate->bind_param("ddi", $newLat, $newLng, $_SESSION['user_id']);
-    if ($stmtUpdate->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Position updated successfully.']);
-    } else {
+    $stmtUpdate->execute();
+
+    if ($stmtUpdate->error) {
         error_log("Error updating position: " . $stmtUpdate->error);
-        echo json_encode(['success' => false, 'message' => 'Error executing statement.']);
+        echo json_encode(['success' => false, 'message' => 'Error updating position.']);
+        exit();
     }
+
+    echo json_encode(['success' => true, 'message' => 'Position updated successfully.']);
     exit();
 }
 
@@ -208,8 +211,15 @@ $requests = json_decode($jsonRequestsData, true);
 
 $jsonAnnouncementsData = file_get_contents('announcements.json');
 $announcements = json_decode($jsonAnnouncementsData, true);
-
 $citizenData = [];
+
+if (!$requests) {
+    $requests = [];
+}
+
+if (!$announcements) {
+    $announcements = [];
+}
 
 // Collect all requests by user ID
 foreach ($requests as $request) {
@@ -403,11 +413,33 @@ if (!empty($citizenIds)) {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
+            // Define custom icons for the markers
+            var rescuerIcon = L.icon({
+                iconUrl: 'red.png',
+                iconSize: [45, 50], // Set to default Leaflet icon size
+                iconAnchor: [22, 50], // Set anchor to ensure marker is properly positioned
+                popupAnchor: [1, -34] // Popup anchor offset
+            });
+
+            var adminIcon = L.icon({
+                iconUrl: 'blue.png',
+                iconSize: [45, 50],
+                iconAnchor: [22, 50],
+                popupAnchor: [1, -34]
+            });
+
+            var citizenIcon = L.icon({
+                iconUrl: 'purple.png',
+                iconSize: [45, 50],
+                iconAnchor: [22, 50],
+                popupAnchor: [1, -34]
+            });
+
             // Display marker for the admin
-            L.marker([adminLat, adminLng]).addTo(map).bindPopup("Admin's marker.");
+            L.marker([adminLat, adminLng], { icon: adminIcon }).addTo(map).bindPopup("Admin's marker.");
 
             // Display marker for the logged-in rescuer
-            var rescuerMarker = L.marker([rescuerLat, rescuerLng], { draggable: false }).addTo(map);
+            var rescuerMarker = L.marker([rescuerLat, rescuerLng], { draggable: false, icon: rescuerIcon }).addTo(map);
             var originalPosition = rescuerMarker.getLatLng(); // Save the original position
 
             var wasDragged = false;
@@ -477,7 +509,7 @@ if (!empty($citizenIds)) {
                 citizenMarkers.forEach(function(marker) {
                     
                     if (marker.cit_lat && marker.cit_lng) {
-                        var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng]).addTo(citizenLayerGroup);
+                        var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng], { icon: citizenIcon }).addTo(citizenLayerGroup);
                         var popupContent = `
                             <b>Citizen:</b> ${marker.cit_name} ${marker.cit_surname}<br>
                             <b>Phone:</b> ${marker.cit_phone}<br>
