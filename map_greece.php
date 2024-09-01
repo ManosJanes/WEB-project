@@ -332,7 +332,7 @@ if (!empty($citizenIds)) {
                 if (marker.requests.length > 0) {
                     popupContent += '<strong>Requests:</strong><ul>';
                     marker.requests.forEach(function (request) {
-                        if (request.status !== 'completed') {
+                        if (request.status !== 'Completed') {
                             popupContent += '<li>Request ID: ' + request.request_id + ', Item ID: ' + request.item_id + ', People Count: ' + request.people_count + ', Status: ' + request.status + '</li>';
                         }
                     });
@@ -343,7 +343,7 @@ if (!empty($citizenIds)) {
 
                 var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng]).bindPopup(popupContent).addTo(map);
 
-                if (marker.requests.length > 0 && marker.requests.some(request => request.status !== 'completed')) {
+                if (marker.requests.length > 0 && marker.requests.some(request => request.status !== 'Completed')) {
                     pendingRequestMarkers.push(citizenMarker);
                 }
 
@@ -351,7 +351,7 @@ if (!empty($citizenIds)) {
                     citizenRequestMarkers.push(citizenMarker);
                 }
 
-                if (marker.announcements.length > 0 && marker.announcements.some(announcement => !announcement.completed_at)) {
+                if (marker.announcements.length > 0 && marker.announcements.some(announcement => !announcement.delivery_completion_date)) {
                     citizenAnnouncementMarkers.push(citizenMarker);
                 }
             });

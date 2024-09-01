@@ -16,32 +16,36 @@
         "user_id": "16",
         "item_id": "66d3681ed0671",
         "people_count": "2",
-        "status": "Accepted by rescuer",
-        "accepted_at": "2024-09-01 15:04:51",
+        "status": "Pending",
+        "accepted_at": null,
         "completed_at": null,
         "created_at": "2024-09-01 13:02:44",
-        "rescuerName": "Michalis",
-        "rescuerSurname": "Zannis"
+        "rescuerName": null,
+        "rescuerSurname": null
     },
     {
         "request_id": "66d466175008e",
         "user_id": "16",
         "item_id": "6582c072008fc",
         "people_count": "3",
-        "status": "Pending",
-        "accepted_at": null,
+        "status": "Accepted by rescuer",
+        "accepted_at": "2024-09-01 18:10:47",
         "completed_at": null,
-        "created_at": "2024-09-01 13:03:19"
+        "created_at": "2024-09-01 13:03:19",
+        "rescuerName": "Michalis",
+        "rescuerSurname": "Zannis"
     },
     {
         "request_id": "66d4661b69f14",
         "user_id": "16",
         "item_id": "6582c3387093b",
         "people_count": "4",
-        "status": "Pending",
-        "accepted_at": null,
+        "status": "Accepted by rescuer",
+        "accepted_at": "2024-09-01 18:21:28",
         "completed_at": null,
-        "created_at": "2024-09-01 13:03:23"
+        "created_at": "2024-09-01 13:03:23",
+        "rescuerName": "Michalis",
+        "rescuerSurname": "Zannis"
     },
     {
         "request_id": "66d4661facb6d",

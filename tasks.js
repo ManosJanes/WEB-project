@@ -16,7 +16,7 @@ function updateTask(action, id, type) {
     checkDistance(id, type)
     .then(distance => {
         if (distance <= 50) {
-            return fetch(action + '_task.php', {
+            return fetch('complete_task.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -26,10 +26,10 @@ function updateTask(action, id, type) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Task ' + action + 'ed successfully!');
+                    alert('Task completed successfully!');
                     location.reload();
                 } else {
-                    alert('Failed to ' + action + ' task: ' + data.message);
+                    alert('Failed to complete task: ' + data.message);
                 }
             });
         } else {
@@ -82,4 +82,23 @@ function checkDistance(id, type) {
             throw new Error(data.message);
         }
     });
+}
+
+function cancelTask(action,id, type) {
+            return fetch('cancel_task.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: id, type: type })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Task cancelled successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to cancel task: ' + data.message);
+                }
+            });
 }

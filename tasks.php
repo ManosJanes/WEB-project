@@ -188,7 +188,7 @@ foreach ($acceptedRequests as &$request) {
             <td><?php echo htmlspecialchars($request['userSurname'] ?? ''); ?></td>
             <td><?php echo htmlspecialchars($request['userPhone'] ?? ''); ?></td>
             <td>
-                <button onclick="updateTask('cancel', '<?php echo $request['request_id']; ?>', 'request')">Cancel</button>
+                <button onclick="cancelTask('cancel', '<?php echo $request['request_id']; ?>', 'request')">Cancel</button>
                 <button onclick="updateTask('complete', '<?php echo $request['request_id']; ?>', 'request')">Complete</button>
             </td>
         </tr>
@@ -217,7 +217,7 @@ foreach ($acceptedRequests as &$request) {
             <td><?php echo htmlspecialchars($announcement['userSurname'] ?? ''); ?></td>
             <td><?php echo htmlspecialchars($announcement['userPhone'] ?? ''); ?></td>
             <td>
-                <button onclick="updateTask('cancel', '<?php echo $announcement['item_id']; ?>', 'announcement')">Cancel</button>
+                <button onclick="cancelTask('cancel', '<?php echo $announcement['item_id']; ?>', 'announcement')">Cancel</button>
                 <button onclick="handleAnnouncementCompletion('<?php echo $announcement['item_id']; ?>')">Complete</button>
             </td>
         </tr>

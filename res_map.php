@@ -18,6 +18,51 @@ $stmtRescuerDetails->execute();
 $rescuerResult = $stmtRescuerDetails->get_result();
 $rescuerDetails = $rescuerResult->fetch_assoc();
 
+$rescuerId = $_SESSION['user_id'];
+$rescuerName = $rescuerDetails['res_name'];  
+$rescuerSurname = $rescuerDetails['res_surname'];  
+
+// Function to count total accepted items
+function countTotalAcceptedItems($rescuerName, $rescuerSurname) {
+    $totalAccepted = 0;
+
+    // Count accepted requests
+    $requestsData = file_get_contents('requests.json');
+    $requests = json_decode($requestsData, true);
+    foreach ($requests as $request) {
+        if (isset($request['rescuerName']) && isset($request['rescuerSurname']) &&
+            $request['rescuerName'] === $rescuerName &&
+            $request['rescuerSurname'] === $rescuerSurname &&
+            $request['status'] === 'Accepted by rescuer') {
+            $totalAccepted++;
+        }
+    }
+
+    // Count accepted announcements
+    $announcementsData = file_get_contents('announcements.json');
+    $announcements = json_decode($announcementsData, true);
+    foreach ($announcements as $announcement) {
+        foreach ($announcement['items'] as $item) {
+            if (isset($item['rescuer_first_name']) && isset($item['rescuer_last_name']) &&
+                $item['rescuer_first_name'] === $rescuerName &&
+                $item['rescuer_last_name'] === $rescuerSurname &&
+                !empty($item['rescuer_acceptance_date']) && 
+                empty($item['delivery_completion_date'])) {
+                $totalAccepted++;
+            }
+        }
+    }
+
+    return $totalAccepted;
+}
+
+$totalAcceptedItems = countTotalAcceptedItems($rescuerName, $rescuerSurname);
+
+// Check if the rescuer has reached the limit
+if ($totalAcceptedItems >= 4) {
+    echo "<script>alert('You have already accepted 4 tasks. You cannot accept more.');</script>";
+}
+
 // Check if the request is for updating the marker
 if (isset($_POST['update_marker']) && $_POST['update_marker'] == true) {
     $newLat = $_POST['lat'];
@@ -43,77 +88,82 @@ if (isset($_POST['update_marker']) && $_POST['update_marker'] == true) {
     exit();
 }
 
-// Check if the request is for accepting an announcement Manos
+// Check if the request is for accepting an announcement
 if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == true) {
-    $announcementId = $_POST['announcementId'];
-    $itemId = $_POST['itemId'];
-    $rescuerName = $rescuerDetails['res_name'];
-    $rescuerSurname = $rescuerDetails['res_surname'];
-    $acceptedAt = date('Y-m-d H:i:s');
+    if ($totalAcceptedItems < 4) {
+        $announcementId = $_POST['announcementId'];
+        $itemId = $_POST['itemId'];
+        $acceptedAt = date('Y-m-d H:i:s');
 
-    // Load and decode the JSON file
-    $jsonAnnouncementsData = file_get_contents('announcements.json');
-    $announcements = json_decode($jsonAnnouncementsData, true);
-    
-    // Find the specific announcement and item to update MANOS
-    $announcementFound = false;
-    foreach ($announcements as &$announcement) {
-        if ($announcement['announcement_id'] == $announcementId) {
-            foreach ($announcement['items'] as &$item) {
-                if ($item['item_id'] == $itemId) {
-                    $item['rescuer_acceptance_date'] = $acceptedAt;
-                    $item['rescuer_first_name'] = $rescuerName;
-                    $item['rescuer_last_name'] = $rescuerSurname;
-                    $announcementFound = true;
-                    break 2;
+        // Load and decode the JSON file
+        $jsonAnnouncementsData = file_get_contents('announcements.json');
+        $announcements = json_decode($jsonAnnouncementsData, true);
+        
+        // Find the specific announcement and item to update
+        $announcementFound = false;
+        foreach ($announcements as &$announcement) {
+            if ($announcement['announcement_id'] == $announcementId) {
+                foreach ($announcement['items'] as &$item) {
+                    if ($item['item_id'] == $itemId) {
+                        $item['rescuer_acceptance_date'] = $acceptedAt;
+                        $item['rescuer_first_name'] = $rescuerName;
+                        $item['rescuer_last_name'] = $rescuerSurname;
+                        $announcementFound = true;
+                        break 2;
+                    }
                 }
             }
         }
-    }
 
-    if ($announcementFound) {
-        // Save the updated JSON data back to the file
-        file_put_contents('announcements.json', json_encode($announcements, JSON_PRETTY_PRINT));
+        if ($announcementFound) {
+            // Save the updated JSON data back to the file
+            file_put_contents('announcements.json', json_encode($announcements, JSON_PRETTY_PRINT));
 
-        echo json_encode(['success' => true, 'message' => 'Announcement accepted successfully.']);
+            echo json_encode(['success' => true, 'message' => 'Announcement accepted successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Announcement not found.']);
+        }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Announcement not found.']);
+        // Display an error message
+        echo json_encode(['success' => false, 'message' => 'You cannot accept more than 4 tasks at a time.']);
     }
     exit();
 }
 
+// Check if the request is for accepting a request
 if (isset($_POST['accept_request']) && $_POST['accept_request'] == true) {
-    $requestId = $_POST['requestId'];
-    $rescuerName = $rescuerDetails['res_name'];
-    $rescuerSurname = $rescuerDetails['res_surname'];
-    $acceptedAt = date('Y-m-d H:i:s');
-    $rescuerId = $_SESSION['user_id'];
+    if ($totalAcceptedItems < 4) {
+        $requestId = $_POST['requestId'];
+        $acceptedAt = date('Y-m-d H:i:s');
 
+        // Load and decode the JSON file
+        $jsonRequestsData = file_get_contents('requests.json');
+        $requests = json_decode($jsonRequestsData, true);
 
-    // Load and decode the JSON file
-    $jsonRequestsData = file_get_contents('requests.json');
-    $requests = json_decode($jsonRequestsData, true);
-
-    // Find the specific request to update
-    $requestFound = false;
-    foreach ($requests as &$request) {
-        if ($request['request_id'] == $requestId) {
-            $request['accepted_at'] = $acceptedAt;
-            $request['rescuerName'] = $rescuerName;
-            $request['rescuerSurname'] = $rescuerSurname;
-            $request['status'] = "Accepted by rescuer";
-            $requestFound = true;
-            break;
+        // Find the specific request to update
+        $requestFound = false;
+        foreach ($requests as &$request) {
+            if ($request['request_id'] == $requestId) {
+                $request['accepted_at'] = $acceptedAt;
+                $request['rescuerName'] = $rescuerName;
+                $request['rescuerSurname'] = $rescuerSurname;
+                $request['status'] = "Accepted by rescuer";
+                $requestFound = true;
+                break;
+            }
         }
-    }
 
-    if ($requestFound) {
-        // Save the updated JSON data back to the file
-        file_put_contents('requests.json', json_encode($requests, JSON_PRETTY_PRINT));
+        if ($requestFound) {
+            // Save the updated JSON data back to the file
+            file_put_contents('requests.json', json_encode($requests, JSON_PRETTY_PRINT));
 
-        echo json_encode(['success' => true, 'message' => 'Request accepted successfully.']);
+            echo json_encode(['success' => true, 'message' => 'Request accepted successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Request not found.']);
+        }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Request not found.']);
+        // Display an error message
+        echo json_encode(['success' => false, 'message' => 'You cannot accept more than 4 tasks at a time.']);
     }
     exit();
 }
@@ -163,10 +213,6 @@ $requests = json_decode($jsonRequestsData, true);
 $jsonAnnouncementsData = file_get_contents('announcements.json');
 $announcements = json_decode($jsonAnnouncementsData, true);
 
-// Debug: Dump the contents of the $announcements array
-//var_dump($announcements);
-//exit; // Stop further execution to inspect the output
-
 $citizenData = [];
 
 // Collect all requests by user ID
@@ -186,7 +232,7 @@ foreach ($requests as $request) {
     ];
 }
 
-// Collect all announcements by user ID MANOS
+// Collect all announcements by user ID
 foreach ($announcements as $announcement) {
     foreach ($announcement['items'] as $item) {
         $userId = (int) $item['citizen_id'];
@@ -243,8 +289,6 @@ if (!empty($citizenIds)) {
     while ($row = $resultCitizens->fetch_assoc()) {
         $citizenId = $row['cit_id'];
 
-    
-
         $citizenMarkers[] = [
             'cit_id' => $citizenId,
             'cit_name' => $row['cit_name'],
@@ -257,39 +301,8 @@ if (!empty($citizenIds)) {
         ];
     }
 
-    // Debug: Log the final $citizenMarkers array
-    error_log(print_r($citizenMarkers, true));
-
     $stmtCitizens->close();
 }
-
-function countTotalAcceptedItems($rescuerId) {
-    $totalAccepted = 0;
-
-    // Count accepted requests
-    $requestsData = file_get_contents('requests.json');
-    $requests = json_decode($requestsData, true);
-    foreach ($requests as $request) {
-        if (isset($request['rescuer_id']) && $request['rescuer_id'] == $rescuerId && $request['status'] == 'Accepted by rescuer') {
-            $totalAccepted++;  // Replace this with the correct field
-        }
-    }
-
-    // Count accepted announcements
-    $announcementsData = file_get_contents('announcements.json');
-    $announcements = json_decode($announcementsData, true);
-    foreach ($announcements as $announcement) {
-        foreach ($announcement['items'] as $item) {
-            if ($item['citizen_id'] == $rescuerId) {
-                $totalAccepted++;  // Replace this with the correct field
-            }
-        }
-    }
-
-    return $totalAccepted;
-}
-
-$totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
 ?>
 
 <!DOCTYPE html>
@@ -338,245 +351,244 @@ $totalAcceptedItems = countTotalAcceptedItems($_SESSION['user_id']);
     </div>
 
     <script>
-
-function acceptRequest(requestId) {
-        fetch('res_map.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'accept_request=true&requestId=' + requestId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Request accepted successfully.');
-                location.reload();
-            } else {
-                alert('Error accepting request: ' + data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function acceptAnnouncement(announcementId, itemId) {
-        fetch('res_map.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'accept_announcement=true&announcementId=' + announcementId + '&itemId=' + itemId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Announcement accepted successfully.');
-                location.reload();
-            } else {
-                alert('Error accepting announcement: ' + data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        var mapElement = document.getElementById('map');
-        
-        var adminLat = mapElement.getAttribute('data-admin-lat');
-        var adminLng = mapElement.getAttribute('data-admin-lng');
-        var rescuerLat = mapElement.getAttribute('data-rescuer-lat');
-        var rescuerLng = mapElement.getAttribute('data-rescuer-lng');
-        var citizenMarkers = JSON.parse(mapElement.getAttribute('data-citizen-markers'));
-        var announcements = JSON.parse(mapElement.getAttribute('data-announcements'));
-
-        var map = L.map('map').setView([0, 0], 2);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Display marker for the admin
-        L.marker([adminLat, adminLng]).addTo(map).bindPopup("Admin's marker.");
-
-        // Display marker for the logged-in rescuer
-        var rescuerMarker = L.marker([rescuerLat, rescuerLng], { draggable: false }).addTo(map);
-
-        // Center the map to the rescuer's position
-        map.setView([rescuerLat, rescuerLng], 13);
-
-        // Layer Groups
-        var citizenLayerGroup = L.layerGroup().addTo(map);
-        var lineLayerGroup = L.layerGroup().addTo(map);
-
-        var showAcceptedRequests = true;
-        var showPendingRequests = true;
-        var showAnnouncements = true;
-        var showLines = true;
-
-        function addMarkersAndLines() {
-            citizenLayerGroup.clearLayers();
-            lineLayerGroup.clearLayers();
-
-            var polylines = [];
-
-            // Add citizen markers with requests and announcements
-            citizenMarkers.forEach(function(marker) {
-                
-                if (marker.cit_lat && marker.cit_lng) {
-                    var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng]).addTo(citizenLayerGroup);
-                    var popupContent = `
-                        <b>Citizen:</b> ${marker.cit_name} ${marker.cit_surname}<br>
-                        <b>Phone:</b> ${marker.cit_phone}<br>
-                    `;
-
-                    // Add requests to the popup content
-                    marker.requests.forEach(function(request) {
-                        if (request.status !== "Completed" && request.status !== "Cancelled") {
-                            var requestContent = `
-                                <b>Request ID:</b> ${request.request_id}<br>
-                                <b>Item ID:</b> ${request.item_id}<br>
-                                <b>People Count:</b> ${request.people_count}<br>
-                                <b>Accepted At:</b> ${request.accepted_at}<br>
-                                <b>Status:</b> ${request.status}<br>
-                            `;
-                        }
-
-                        if (request.status !== "Completed" && request.status !== "Cancelled") {
-                            if (request.status !== "Accepted by rescuer") {
-                                requestContent += `
-                                    <button onclick="acceptRequest('${request.request_id}')">Accept Request</button>
-                                `;
-                            }
-                            requestContent += `<hr>`;
-                        }
-                        
-
-                        if (request.status === "Accepted by rescuer" && showAcceptedRequests) {
-                            popupContent += requestContent;
-                            if (showLines) {
-                                polylines.push(L.polyline([
-                                    [rescuerLat, rescuerLng],
-                                    [marker.cit_lat, marker.cit_lng]
-                                ], { color: 'blue' }).addTo(lineLayerGroup));
-                            }
-                        } else if (request.status !== "Accepted by rescuer" && showPendingRequests) {
-                            popupContent += requestContent;
-                        }
-                    });
-
-                    // Add announcements to the popup content
-                    marker.announcements.forEach(function(announcement) {
-                        if (!announcement.delivery_completion_date && showAnnouncements) {
-                            var announcementContent = `
-                                <b>Announcement ID:</b> ${announcement.announcement_id}<br>
-                                <b>Item ID:</b> ${announcement.item_id}<br>
-                                <b>Quantity:</b> ${announcement.quantity}<br>
-                                <b>Created At:</b> ${announcement.citizen_acceptance_date}<br>
-                                <b>Accepted At:</b> ${announcement.rescuer_acceptance_date || 'Not accepted yet'}<br>
-                            `;
-                            if (!announcement.rescuer_acceptance_date) {
-                                announcementContent += `
-                                    <button onclick="acceptAnnouncement('${announcement.announcement_id}', '${announcement.item_id}')">Accept Announcement</button>
-                                `;
-                            }
-                            announcementContent += `<hr>`;
-                            popupContent += announcementContent;
-
-                            if (announcement.rescuer_acceptance_date && showLines) {
-                                polylines.push(L.polyline([
-                                    [rescuerLat, rescuerLng],
-                                    [marker.cit_lat, marker.cit_lng]
-                                ], { color: 'green' }).addTo(lineLayerGroup));
-                            }
-                        }
-                    });
-
-                    // Bind popup to citizen marker
-                    citizenMarker.bindPopup(popupContent);
-                }
-            });
-        }
-
-        addMarkersAndLines();
-
-        var wasDragged = false;
-
-        function changeLocation() {
-            if (!wasDragged) {
-                // Enable dragging when the button is clicked for the first time
-                rescuerMarker.dragging.enable();
-                wasDragged = true;
-            } else {
-                // Disable dragging when the button is clicked again
-                rescuerMarker.dragging.disable();
-                wasDragged = false;
-
-                if (confirm('Do you want to keep this position?')) {
-                    var newLatLng = rescuerMarker.getLatLng();
-                    localStorage.setItem('markerPosition', JSON.stringify(newLatLng));
-
-                    // Update the marker position in the same file
-                    updateMarkerPosition(newLatLng.lat, newLatLng.lng)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Position updated successfully.');
-                            } else {
-                                alert('Error updating position. Please try again.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred while updating the position.');
-                        });
-                } else {
-                    // If the user cancels, reset the marker position to the original
-                    rescuerMarker.setLatLng(originalPosition);
-                }
-            }
-        }
-
-        function updateMarkerPosition(lat, lng) {
-            return fetch('res_map.php', {
+        function acceptRequest(requestId) {
+            fetch('res_map.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: new URLSearchParams({
-                    update_marker: true,
-                    lat: lat,
-                    lng: lng,
-                }),
-            });
+                body: 'accept_request=true&requestId=' + requestId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Request accepted successfully.');
+                    location.reload();
+                } else {
+                    alert('Error accepting request: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
 
-        document.getElementById('changeLocation').addEventListener('click', changeLocation);
+        function acceptAnnouncement(announcementId, itemId) {
+            fetch('res_map.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'accept_announcement=true&announcementId=' + announcementId + '&itemId=' + itemId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Announcement accepted successfully.');
+                    location.reload();
+                } else {
+                    alert('Error accepting announcement: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
 
-        function toggleAcceptedRequests() {
-            showAcceptedRequests = !showAcceptedRequests;
+        document.addEventListener("DOMContentLoaded", function () {
+            var mapElement = document.getElementById('map');
+            
+            var adminLat = mapElement.getAttribute('data-admin-lat');
+            var adminLng = mapElement.getAttribute('data-admin-lng');
+            var rescuerLat = mapElement.getAttribute('data-rescuer-lat');
+            var rescuerLng = mapElement.getAttribute('data-rescuer-lng');
+            var citizenMarkers = JSON.parse(mapElement.getAttribute('data-citizen-markers'));
+            var announcements = JSON.parse(mapElement.getAttribute('data-announcements'));
+
+            var map = L.map('map').setView([0, 0], 2);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Display marker for the admin
+            L.marker([adminLat, adminLng]).addTo(map).bindPopup("Admin's marker.");
+
+            // Display marker for the logged-in rescuer
+            var rescuerMarker = L.marker([rescuerLat, rescuerLng], { draggable: false }).addTo(map);
+
+            // Center the map to the rescuer's position
+            map.setView([rescuerLat, rescuerLng], 13);
+
+            // Layer Groups
+            var citizenLayerGroup = L.layerGroup().addTo(map);
+            var lineLayerGroup = L.layerGroup().addTo(map);
+
+            var showAcceptedRequests = true;
+            var showPendingRequests = true;
+            var showAnnouncements = true;
+            var showLines = true;
+
+            function addMarkersAndLines() {
+                citizenLayerGroup.clearLayers();
+                lineLayerGroup.clearLayers();
+
+                var polylines = [];
+
+                // Add citizen markers with requests and announcements
+                citizenMarkers.forEach(function(marker) {
+                    
+                    if (marker.cit_lat && marker.cit_lng) {
+                        var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng]).addTo(citizenLayerGroup);
+                        var popupContent = `
+                            <b>Citizen:</b> ${marker.cit_name} ${marker.cit_surname}<br>
+                            <b>Phone:</b> ${marker.cit_phone}<br>
+                        `;
+
+                        // Add requests to the popup content
+                        marker.requests.forEach(function(request) {
+                            if (request.status !== "Completed" && request.status !== "Cancelled") {
+                                var requestContent = `
+                                    <b>Request ID:</b> ${request.request_id}<br>
+                                    <b>Item ID:</b> ${request.item_id}<br>
+                                    <b>People Count:</b> ${request.people_count}<br>
+                                    <b>Accepted At:</b> ${request.accepted_at}<br>
+                                    <b>Status:</b> ${request.status}<br>
+                                `;
+                            }
+
+                            if (request.status !== "Completed" && request.status !== "Cancelled") {
+                                if (request.status !== "Accepted by rescuer") {
+                                    requestContent += `
+                                        <button onclick="acceptRequest('${request.request_id}')">Accept Request</button>
+                                    `;
+                                }
+                                requestContent += `<hr>`;
+                            }
+                            
+
+                            if (request.status === "Accepted by rescuer" && showAcceptedRequests) {
+                                popupContent += requestContent;
+                                if (showLines) {
+                                    polylines.push(L.polyline([
+                                        [rescuerLat, rescuerLng],
+                                        [marker.cit_lat, marker.cit_lng]
+                                    ], { color: 'blue' }).addTo(lineLayerGroup));
+                                }
+                            } else if (request.status !== "Accepted by rescuer" && showPendingRequests) {
+                                popupContent += requestContent;
+                            }
+                        });
+
+                        // Add announcements to the popup content
+                        marker.announcements.forEach(function(announcement) {
+                            if (!announcement.delivery_completion_date && showAnnouncements) {
+                                var announcementContent = `
+                                    <b>Announcement ID:</b> ${announcement.announcement_id}<br>
+                                    <b>Item ID:</b> ${announcement.item_id}<br>
+                                    <b>Quantity:</b> ${announcement.quantity}<br>
+                                    <b>Created At:</b> ${announcement.citizen_acceptance_date}<br>
+                                    <b>Accepted At:</b> ${announcement.rescuer_acceptance_date || 'Not accepted yet'}<br>
+                                `;
+                                if (!announcement.rescuer_acceptance_date) {
+                                    announcementContent += `
+                                        <button onclick="acceptAnnouncement('${announcement.announcement_id}', '${announcement.item_id}')">Accept Announcement</button>
+                                    `;
+                                }
+                                announcementContent += `<hr>`;
+                                popupContent += announcementContent;
+
+                                if (announcement.rescuer_acceptance_date && showLines) {
+                                    polylines.push(L.polyline([
+                                        [rescuerLat, rescuerLng],
+                                        [marker.cit_lat, marker.cit_lng]
+                                    ], { color: 'green' }).addTo(lineLayerGroup));
+                                }
+                            }
+                        });
+
+                        // Bind popup to citizen marker
+                        citizenMarker.bindPopup(popupContent);
+                    }
+                });
+            }
+
             addMarkersAndLines();
-        }
 
-        function togglePendingRequests() {
-            showPendingRequests = !showPendingRequests;
-            addMarkersAndLines();
-        }
+            var wasDragged = false;
 
-        function toggleAnnouncements() {
-            showAnnouncements = !showAnnouncements;
-            addMarkersAndLines();
-        }
+            function changeLocation() {
+                if (!wasDragged) {
+                    // Enable dragging when the button is clicked for the first time
+                    rescuerMarker.dragging.enable();
+                    wasDragged = true;
+                } else {
+                    // Disable dragging when the button is clicked again
+                    rescuerMarker.dragging.disable();
+                    wasDragged = false;
 
-        function toggleLines() {
-            showLines = !showLines;
-            addMarkersAndLines();
-        }
+                    if (confirm('Do you want to keep this position?')) {
+                        var newLatLng = rescuerMarker.getLatLng();
+                        localStorage.setItem('markerPosition', JSON.stringify(newLatLng));
 
-        document.getElementById('toggleAcceptedRequests').addEventListener('click', toggleAcceptedRequests);
-        document.getElementById('togglePendingRequests').addEventListener('click', togglePendingRequests);
-        document.getElementById('toggleAnnouncements').addEventListener('click', toggleAnnouncements);
-        document.getElementById('toggleLines').addEventListener('click', toggleLines);
-    });
+                        // Update the marker position in the same file
+                        updateMarkerPosition(newLatLng.lat, newLatLng.lng)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert('Position updated successfully.');
+                                } else {
+                                    alert('Error updating position. Please try again.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred while updating the position.');
+                            });
+                    } else {
+                        // If the user cancels, reset the marker position to the original
+                        rescuerMarker.setLatLng(originalPosition);
+                    }
+                }
+            }
+
+            function updateMarkerPosition(lat, lng) {
+                return fetch('res_map.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        update_marker: true,
+                        lat: lat,
+                        lng: lng,
+                    }),
+                });
+            }
+
+            document.getElementById('changeLocation').addEventListener('click', changeLocation);
+
+            function toggleAcceptedRequests() {
+                showAcceptedRequests = !showAcceptedRequests;
+                addMarkersAndLines();
+            }
+
+            function togglePendingRequests() {
+                showPendingRequests = !showPendingRequests;
+                addMarkersAndLines();
+            }
+
+            function toggleAnnouncements() {
+                showAnnouncements = !showAnnouncements;
+                addMarkersAndLines();
+            }
+
+            function toggleLines() {
+                showLines = !showLines;
+                addMarkersAndLines();
+            }
+
+            document.getElementById('toggleAcceptedRequests').addEventListener('click', toggleAcceptedRequests);
+            document.getElementById('togglePendingRequests').addEventListener('click', togglePendingRequests);
+            document.getElementById('toggleAnnouncements').addEventListener('click', toggleAnnouncements);
+            document.getElementById('toggleLines').addEventListener('click', toggleLines);
+        });
     </script>
 </body>
 </html>

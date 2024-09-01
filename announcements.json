@@ -8,10 +8,10 @@
                 "citizen_id": "16",
                 "quantity": "5",
                 "citizen_acceptance_date": "2024-08-17T15:54:38.706Z",
-                "rescuer_acceptance_date": null,
+                "rescuer_acceptance_date": "2024-09-01 18:08:42",
                 "delivery_completion_date": null,
-                "rescuer_first_name": null,
-                "rescuer_last_name": null
+                "rescuer_first_name": "Michalis",
+                "rescuer_last_name": "Zannis"
             },
             {
                 "item_id": "6582c3387093b",
