@@ -4,24 +4,24 @@
         "user_id": "16",
         "item_id": "6582bffba6ae1",
         "people_count": "1",
-        "status": "Pending",
-        "accepted_at": null,
+        "status": "Accepted by rescuer",
+        "accepted_at": "2024-09-02 02:53:16",
         "completed_at": null,
         "created_at": "2024-09-01 13:02:38",
-        "rescuerName": null,
-        "rescuerSurname": null
+        "rescuerName": "Michalis",
+        "rescuerSurname": "Zannis"
     },
     {
         "request_id": "66d465f4181a4",
         "user_id": "16",
         "item_id": "66d3681ed0671",
         "people_count": "2",
-        "status": "Pending",
-        "accepted_at": null,
-        "completed_at": null,
+        "status": "Completed",
+        "accepted_at": "2024-09-02 01:57:42",
+        "completed_at": "2024-09-02 13:02:44",
         "created_at": "2024-09-01 13:02:44",
-        "rescuerName": null,
-        "rescuerSurname": null
+        "rescuerName": "Michalis",
+        "rescuerSurname": "Zannis"
     },
     {
         "request_id": "66d466175008e",
@@ -29,7 +29,7 @@
         "item_id": "6582c072008fc",
         "people_count": "3",
         "status": "Accepted by rescuer",
-        "accepted_at": "2024-09-01 18:10:47",
+        "accepted_at": "2024-09-02 02:53:19",
         "completed_at": null,
         "created_at": "2024-09-01 13:03:19",
         "rescuerName": "Michalis",
@@ -40,12 +40,12 @@
         "user_id": "16",
         "item_id": "6582c3387093b",
         "people_count": "4",
-        "status": "Accepted by rescuer",
-        "accepted_at": "2024-09-01 18:21:28",
+        "status": "Pending",
+        "accepted_at": null,
         "completed_at": null,
         "created_at": "2024-09-01 13:03:23",
-        "rescuerName": "Michalis",
-        "rescuerSurname": "Zannis"
+        "rescuerName": null,
+        "rescuerSurname": null
     },
     {
         "request_id": "66d4661facb6d",

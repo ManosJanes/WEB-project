@@ -27,37 +27,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Filter requests
             const filteredRequests = requestsData.filter(request => {
+                const createdDate = request.created_at ? new Date(request.created_at) : null;
                 const acceptedDate = request.accepted_at ? new Date(request.accepted_at) : null;
                 const completedDate = request.completed_at ? new Date(request.completed_at) : null;
-                
+
                 return (
-                    (!acceptedDate || acceptedDate >= start) &&
-                    (!acceptedDate || acceptedDate <= end) ||
-                    (!completedDate || completedDate >= start) &&
-                    (!completedDate || completedDate <= end)
+                    (!createdDate || createdDate >= start && createdDate <= end) ||
+                    (!acceptedDate || acceptedDate >= start && acceptedDate <= end) ||
+                    (!completedDate || completedDate >= start && completedDate <= end)
                 );
             });
 
             // Filter donations
             const filteredDonations = donationsData.flatMap(announcement => {
                 return announcement.items.filter(item => {
-                    const createdDate = item.created_at ? new Date(item.created_at) : null;
-                    const completedDate = item.completed_at ? new Date(item.completed_at) : null;
+                    const createdDate = item.citizen_acceptance_date ? new Date(item.citizen_acceptance_date) : null;
+                    const completedDate = item.delivery_completion_date ? new Date(item.delivery_completion_date) : null;
 
                     return (
-                        (!createdDate || createdDate >= start) &&
-                        (!createdDate || createdDate <= end) ||
-                        (!completedDate || completedDate >= start) &&
-                        (!completedDate || completedDate <= end)
+                        (!createdDate || createdDate >= start && createdDate <= end) ||
+                        (!completedDate || completedDate >= start && completedDate <= end)
                     );
                 });
             });
 
             return {
-                unacceptedRequests: filteredRequests.filter(req => !req.accepted_at && !req.completed_at),
-                completedRequests: filteredRequests.filter(req => req.completed_at),
-                unacceptedDonations: filteredDonations.filter(item => !item.acceptedBy && !item.completed_at),
-                completedDonations: filteredDonations.filter(item => item.completed_at)
+                unacceptedRequests: filteredRequests.filter(req => req.created_at && !req.accepted_at),
+                completedRequests: filteredRequests.filter(req => req.completed_at && req.status === 'Completed'),
+                unacceptedDonations: filteredDonations.filter(item => !item.citizen_acceptance_date),
+                completedDonations: filteredDonations.filter(item => item.delivery_completion_date)
             };
         }
 
