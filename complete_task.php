@@ -4,26 +4,19 @@ header('Content-Type: application/json');
 
 session_start();
 
-// Ensure the user is logged in and is a rescuer
+// Έλεγχος αν ο χρήστης είναι συνδεδεμένος και αν είναι rescuer
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'rescuer') {
     echo json_encode(['success' => false, 'message' => 'User not authorized']);
     exit();
 }
 
-// Get rescuer name and surname from session
-$rescuerName = $_SESSION['rescuer_name'] ?? null;
-$rescuerSurname = $_SESSION['rescuer_surname'] ?? null;
-
-if (!$rescuerName || !$rescuerSurname) {
-    echo json_encode(['success' => false, 'message' => 'Rescuer information missing from session']);
-    exit();
-}
-
-// Get data from the request
+// Λήψη δεδομένων από το αίτημα
 $data = json_decode(file_get_contents('php://input'), true);
 
+// Καταγραφή των δεδομένων που λαμβάνονται
 error_log("Received data: " . json_encode($data));
 
+// Έλεγχος αν τα δεδομένα είναι σωστά
 if (!isset($data['id']) || !isset($data['type']) || !isset($data['quantity'])) {
     echo json_encode(['success' => false, 'message' => 'Invalid input data']);
     exit();
@@ -34,6 +27,7 @@ $type = $data['type'];
 $quantity = intval($data['quantity']);
 $now = date('Y-m-d H:i:s');
 
+// Συνάρτηση για την ενημέρωση ή προσθήκη αντικειμένου στο rescuer.json
 function updateOrAddItem(&$rescuerData, $id, $quantity, $userId, $itemToAdd = null, $type) {
     $itemFound = false;
     error_log("Starting updateOrAddItem function with ID: $id, Quantity: $quantity, Type: $type");
@@ -63,7 +57,7 @@ function updateOrAddItem(&$rescuerData, $id, $quantity, $userId, $itemToAdd = nu
     }
 
     if (!$itemFound && $type == 'announcement' && $itemToAdd) {
-        $itemToAdd['rescuerId'] = intval($userId);
+        $itemToAdd['rescuerId'] = intval($userId);  // Μετατροπή του rescuerId σε ακέραιο αριθμό
         foreach ($itemToAdd['details'] as &$detail) {
             if ($detail['detail_name'] == 'Quantity') {
                 $detail['detail_value'] = $quantity;
@@ -79,24 +73,24 @@ function updateOrAddItem(&$rescuerData, $id, $quantity, $userId, $itemToAdd = nu
     return ['success' => false, 'message' => 'Item not found'];
 }
 
+// Συνάρτηση για την ολοκλήρωση του request
 function completeRequest($id, $quantity, $now) {
-    global $rescuerName, $rescuerSurname;
-
     $jsonFile = 'requests.json';
     $rescuerFile = 'rescuer.json';
     $tasks = json_decode(file_get_contents($jsonFile), true);
     $rescuerData = json_decode(file_get_contents($rescuerFile), true);
 
+    // Εύρεση του itemId από το requests.json
     $itemId = null;
     foreach ($tasks as $task) {
-        if ($task['request_id'] == $id && $task['rescuerName'] == $rescuerName && $task['rescuerSurname'] == $rescuerSurname) {
+        if ($task['request_id'] == $id && $task['rescuer_id'] == $_SESSION['user_id']) {
             $itemId = $task['item_id'];
             break;
         }
     }
 
     if (!$itemId) {
-        error_log("Request ID not found or not associated with rescuer: $rescuerName $rescuerSurname");
+        error_log("Request ID not found or not associated with rescuer ID: $id");
         return ['success' => false, 'message' => 'Request ID not found'];
     }
 
@@ -121,6 +115,7 @@ function completeRequest($id, $quantity, $now) {
     }
 }
 
+// Συνάρτηση για την ολοκλήρωση της ανακοίνωσης
 function completeAnnouncement($id, $now) {
     $jsonFile = 'announcements.json';
     $itemsFile = 'items.json';
