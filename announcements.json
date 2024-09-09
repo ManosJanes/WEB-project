@@ -143,5 +143,21 @@
                 "rescuer_last_name": null
             }
         ]
+    },
+    {
+        "announcement_id": 5,
+        "announcement_created_at": "2024-09-09T13:26:23.984Z",
+        "items": [
+            {
+                "item_id": "6582bffba6ae1",
+                "citizen_id": null,
+                "quantity": null,
+                "citizen_acceptance_date": null,
+                "rescuer_acceptance_date": null,
+                "delivery_completion_date": null,
+                "rescuer_first_name": null,
+                "rescuer_last_name": null
+            }
+        ]
     }
 ]

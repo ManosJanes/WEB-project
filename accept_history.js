@@ -34,11 +34,29 @@ function populateAcceptedAnnouncements(announcements, userId) {
             acceptedItems.forEach(item => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
+                
+                // Προσθέτουμε όλα τα επιπλέον πεδία του item
                 itemDiv.innerHTML = `
                     <p>Item ID: ${item.item_id}</p>
-                    <p>Accepted By: ${item.citizen_id}</p>
-                    <button onclick="cancelAcceptance(${announcement.announcement_id}, '${item.item_id}', this)">Cancel</button>
+                    <p>Accepted By (Citizen ID): ${item.citizen_id}</p>
+                    <p>Quantity: ${item.quantity || 'N/A'}</p>
+                    <p>Citizen Acceptance Date: ${item.citizen_acceptance_date || 'N/A'}</p>
+                    <p>Rescuer Acceptance Date: ${item.rescuer_acceptance_date || 'N/A'}</p>
+                    <p>Delivery Completion Date: ${item.delivery_completion_date || 'N/A'}</p>
+                    <p>Rescuer First Name: ${item.rescuer_first_name || 'N/A'}</p>
+                    <p>Rescuer Last Name: ${item.rescuer_last_name || 'N/A'}</p>
                 `;
+
+                // Έλεγχος αν το rescuer_acceptance_date είναι null για εμφάνιση του κουμπιού
+                if (!item.rescuer_acceptance_date) {
+                    const cancelButton = document.createElement('button');
+                    cancelButton.textContent = 'Cancel';
+                    cancelButton.onclick = function() {
+                        cancelAcceptance(announcement.announcement_id, item.item_id, cancelButton);
+                    };
+                    itemDiv.appendChild(cancelButton);
+                }
+
                 announcementDiv.appendChild(itemDiv);
             });
 
@@ -46,6 +64,8 @@ function populateAcceptedAnnouncements(announcements, userId) {
         }
     });
 }
+
+
 
 function cancelAcceptance(annId, itemId, buttonElement) {
     fetch('cancel_acceptance.php', {

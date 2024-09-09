@@ -77,9 +77,10 @@ while ($rescuerMarker = $resultRescuerMarker->fetch_assoc()) {
                 $filteredAnnouncements[] = [
                     'citizen_acceptance_date' => $item['citizen_acceptance_date'] ?? null,
                     'announcement_id' => $announcement['announcement_id'] ?? null,
-                    'item_id' => $item['itemId'] ?? null,
+                    'item_id' => $item['item_id'] ?? null,
                     'quantity' => $item['quantity'] ?? null,
-                    'citizen_id' => $item['citizen_id'] ?? null  // Add citizen_id
+                    'citizen_id' => $item['citizen_id'] ?? null,
+                    'rescuer_acceptance_date' => $item['rescuer_acceptance_date'] ?? null
                 ];
             }
         }
@@ -313,15 +314,45 @@ if (!empty($citizenIds)) {
             }
 
             if (toggles.announcements && marker.announcements && marker.announcements.length > 0) {
-                popupContent += '<strong>Pending Announcements:</strong><ul>';
+                popupContent += '<strong>Announcements:</strong><ul>';
                 marker.announcements.forEach(function (announcement) {
-                    popupContent += '<li>Item ID: ' + announcement.item_id + ', Quantity: ' + announcement.quantity + '</li>';
+                    console.log(announcement.item_id);
+                    popupContent += '<li>Item ID: ' + announcement.item_id + ', Quantity: ' + announcement.quantity + ', Citizen accepted: ' + announcement.citizen_acceptance_date + ', Rescuer accepted: ' + announcement.rescuer_acceptance_date + '</li>';
                 });
                 popupContent += '</ul>';
             }
 
-            if (toggles.acceptedRequests && marker.requests && marker.requests.length > 0) {
-                popupContent += '<strong>Accepted Requests:</strong><ul>';
+            if (toggles.acceptedRequests) {
+                var acceptedRequests = marker.requests.filter(function (request) {
+                    return request.status === 'Accepted by rescuer';  // Φιλτράρισμα accepted requests
+                });
+
+                if (acceptedRequests.length > 0) {
+                    popupContent += '<strong>Accepted Requests:</strong><ul>';
+                    acceptedRequests.forEach(function (request) {
+                        popupContent += '<li>Request ID: ' + request.request_id + ', Item ID: ' + request.item_id + ', People Count: ' + request.people_count + ', Accepted At: ' + request.accepted_at + ', Status: ' + request.status +'</li>';
+                    });
+                    popupContent += '</ul>';
+                }
+            }
+
+            // Έλεγχος για τα pending requests
+            if (toggles.pendingRequests) {
+                var pendingRequests = marker.requests.filter(function (request) {
+                    return request.status === 'Pending';
+                });
+
+                if (pendingRequests.length > 0) {
+                    popupContent += '<strong>Pending Requests:</strong><ul>';
+                    pendingRequests.forEach(function (request) {
+                        popupContent += '<li>Request ID: ' + request.request_id + ', Item ID: ' + request.item_id + ', People Count: ' + request.people_count + ', Accepted At: ' + request.accepted_at + ', Status: ' + request.status +'</li>';
+                    });
+                    popupContent += '</ul>';
+                }
+            }
+
+            if (toggles.acceptedRequests && marker.requests && marker.requests.length > 0 && marker.res_id) {
+                popupContent += '<strong>Rescuer Requests:</strong><ul>';
                 marker.requests.forEach(function (request) {
                     popupContent += '<li>Request ID: ' + request.request_id + ', Item ID: ' + request.item_id + ', People Count: ' + request.people_count + ', Accepted At: ' + request.accepted_at + '</li>';
                 });
@@ -402,7 +433,6 @@ if (!empty($citizenIds)) {
             });
         }
 
-        // Update markers based on task visibility toggles
         function updateMarkers() {
             markerLayers.forEach(function (layer) {
                 var isRescuer = layer.data.res_name && layer.data.res_surname;
@@ -471,6 +501,8 @@ if (!empty($citizenIds)) {
             this.classList.toggle('active');
             togglePolylines(polylines);
         });
+
+
 
         // Initial update of markers and polylines
         updateMarkers();

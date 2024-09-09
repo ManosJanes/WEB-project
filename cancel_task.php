@@ -22,6 +22,7 @@ if ($type == 'request') {
             $task['accepted_at'] = null;
             $task['rescuerName'] = null;
             $task['rescuerSurname'] = null;
+            $task['rescuer_id'] = null;
             break;
         }
     }
@@ -34,6 +35,7 @@ if ($type == 'request') {
                 $item['rescuer_acceptance_date'] = null;
                 $item['rescuer_first_name'] = null;
                 $item['rescuer_last_name'] = null;
+                $item['rescuer_id'] = null;
                 break 2;
             }
         }

@@ -28,12 +28,12 @@
         "user_id": "16",
         "item_id": "6582c072008fc",
         "people_count": "3",
-        "status": "Accepted by rescuer",
-        "accepted_at": "2024-09-07 15:33:13",
+        "status": "Pending",
+        "accepted_at": null,
         "completed_at": null,
         "created_at": "2024-09-01 13:03:19",
-        "rescuerName": "Michalis",
-        "rescuerSurname": "Zannis",
+        "rescuerName": null,
+        "rescuerSurname": null,
         "rescuer_id": "3"
     },
     {
@@ -71,5 +71,15 @@
         "accepted_at": null,
         "completed_at": null,
         "created_at": "2024-09-01 13:03:31"
+    },
+    {
+        "request_id": "66def6e03ceef",
+        "user_id": "16",
+        "item_id": "6582bffba6ae1",
+        "people_count": "7",
+        "status": "Cancelled",
+        "accepted_at": null,
+        "completed_at": null,
+        "created_at": "2024-09-09 13:23:44"
     }
 ]

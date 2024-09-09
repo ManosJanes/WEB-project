@@ -63,11 +63,6 @@ foreach ($requests as &$request) {
     $request['created_at'] = $request['created_at'] ?? '';
 }
 
-// Debugging: Print raw request data to ensure it loads correctly
-echo "<pre>Raw Requests Data:\n";
-print_r($requests);
-echo "</pre>";
-
 // Function to fetch user details by user_id
 function fetchUserDetails($con, $userId) {
     $sql = "SELECT name, surname, phone FROM users WHERE id = ?";
@@ -114,11 +109,6 @@ foreach ($requests as $request) {
         }
     }
 }
-
-// Debugging: Output all accepted requests to ensure they are unique and correct
-echo "<pre>Final Accepted Requests Data:\n";
-print_r($acceptedRequests);
-echo "</pre>";
 
 $acceptedAnnouncements = [];
 foreach ($announcements as $announcement) {
