@@ -74,7 +74,7 @@ function loadData() {
         itemsData.items.forEach(function (item) {
           const detailsHTML = `<td>${item.name}</td><td>${item.category}</td><td>${generateDetailsHTML(
             item.details
-          )}</td><td><button onclick="deleteItem('${item.id}')" class="action-button">Delete</button><button onclick="editItem('${item.id}')" class="action-button">Edit</button></td>`;
+          )}</td><td><button onclick="deleteItem('${item.id}')" class="action-button">Delete</button></td>`;
           const newRow = document.createElement("tr");
           newRow.innerHTML = detailsHTML;
           newRow.id = item.id;

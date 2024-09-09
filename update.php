@@ -22,10 +22,6 @@ if (isset($data['action'])) {
             deleteItem($data['deletedItemId']);
             break;
 
-        case 'editItem':
-            editItem($data['editedItemId'], $data['editedData']);
-            break;
-
         case 'addCategory':
             addCategory($data['newCategory']);
             break;
@@ -145,43 +141,6 @@ function deleteItem($deletedItemId) {
     foreach ($itemsData['items'] as $key => $item) {
         if ($item['id'] === $deletedItemId) {
             unset($itemsData['items'][$key]);
-            break;
-        }
-    }
-
-    // Save the updated data back to items.json
-    file_put_contents($jsonFileItems, json_encode($itemsData, JSON_PRETTY_PRINT));
-
-    echo json_encode(['success' => true]);
-}
-
-function editItem($editedItemId, $editedData) {
-    $jsonFileItems = 'items.json';
-    $jsonFileCategories = 'categories.json';
-
-    // Read items data
-    $jsonDataItems = file_get_contents($jsonFileItems);
-    $itemsData = json_decode($jsonDataItems, true);
-
-    // Read categories data
-    $jsonDataCategories = file_get_contents($jsonFileCategories);
-    $categoriesData = json_decode($jsonDataCategories, true);
-    $validCategories = isset($categoriesData['categories']) ? $categoriesData['categories'] : [];
-
-    // Find and update the item with the given ID
-    foreach ($itemsData['items'] as $key => $item) {
-        if ($item['id'] === $editedItemId) {
-            // Check if the edited category is valid
-            $editedCategory = $editedData['category'];
-            if (!in_array($editedCategory, $validCategories)) {
-                echo json_encode(['error' => 'Invalid category.']);
-                return;
-            }
-
-            // Update the item's data with editedData
-            foreach ($editedData as $field => $value) {
-                $itemsData['items'][$key][$field] = $value;
-            }
             break;
         }
     }

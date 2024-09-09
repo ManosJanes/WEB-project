@@ -127,7 +127,6 @@ $allCategories = array_unique(array_merge($categories, $categoriesFromJson));
                       <td>{$detailsHTML}</td>
                       <td>
                           <button onclick=\"deleteItem('{$item['id']}')\" class=\"action-button\">Delete</button>
-                          <button onclick=\"editItem('{$item['id']}')\" class=\"action-button\">Edit</button>    
                       </td>
                   </tr>";
               }

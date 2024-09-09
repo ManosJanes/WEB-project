@@ -213,5 +213,6 @@ foreach ($acceptedRequests as &$request) {
         </tr>
         <?php endforeach; ?>
     </table>
+    <button onclick="window.location.href = 'rescuer.php';" class="action-button">GO BACK</button>
 </body>
 </html>

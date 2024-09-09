@@ -26,9 +26,9 @@
             },
             {
                 "item_id": "659a815c89dab",
-                "citizen_id": null,
-                "quantity": null,
-                "citizen_acceptance_date": null,
+                "citizen_id": "95",
+                "quantity": "3",
+                "citizen_acceptance_date": "2024-09-09T23:17:58.248Z",
                 "rescuer_acceptance_date": null,
                 "delivery_completion_date": null,
                 "rescuer_first_name": null,
@@ -150,9 +150,9 @@
         "items": [
             {
                 "item_id": "6582bffba6ae1",
-                "citizen_id": null,
-                "quantity": null,
-                "citizen_acceptance_date": null,
+                "citizen_id": "95",
+                "quantity": "4",
+                "citizen_acceptance_date": "2024-09-09T23:18:06.831Z",
                 "rescuer_acceptance_date": null,
                 "delivery_completion_date": null,
                 "rescuer_first_name": null,
