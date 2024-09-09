@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const ctx = document.getElementById('myChart').getContext('2d');
     let myChart = null;
 
+    // Get the current year dynamically
+    const currentYear = new Date().getFullYear();
+    let initialStartDate = `${currentYear}-01-01`;  // Set the start date to the first day of the current year
+    let initialEndDate = `${currentYear}-12-31`;    // Set the end date to the last day of the current year
+
     // Function to fetch JSON data
     async function fetchData(url) {
         try {
@@ -17,54 +22,64 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function init() {
-        // Fetch the data from the JSON files
         const requestsData = await fetchData('requests.json');
         const donationsData = await fetchData('announcements.json');
 
         function filterData(startDate, endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999); // Ensure the end date includes the full day
 
-            // Filter requests
-            const filteredRequests = requestsData.filter(request => {
-                const createdDate = request.created_at ? new Date(request.created_at) : null;
-                const acceptedDate = request.accepted_at ? new Date(request.accepted_at) : null;
-                const completedDate = request.completed_at ? new Date(request.completed_at) : null;
+            // Filter completed requests: completed_at is within the date range
+            const completedRequests = requestsData.filter(request => 
+                request.completed_at != null &&
+                new Date(request.completed_at) >= start &&
+                new Date(request.completed_at) <= end
+            );
 
-                return (
-                    (!createdDate || createdDate >= start && createdDate <= end) ||
-                    (!acceptedDate || acceptedDate >= start && acceptedDate <= end) ||
-                    (!completedDate || completedDate >= start && completedDate <= end)
-                );
-            });
+            // Filter new requests: created_at must be not null and earlier or equal to the end date,
+            // completed_at is either null or after the end date, and accepted_at is either null or after the end date
+            //Exageration since the completion date will happend AFTER the rescuer acceptance date anyways...
+            const newRequests = requestsData.filter(request => 
+                request.created_at != null && new Date(request.created_at) <= end &&
+                (request.completed_at == null || new Date(request.completed_at) > end) &&
+                (request.accepted_at == null || new Date(request.accepted_at) > end)
+            );
 
-            // Filter donations
-            const filteredDonations = donationsData.flatMap(announcement => {
-                return announcement.items.filter(item => {
-                    const createdDate = item.citizen_acceptance_date ? new Date(item.citizen_acceptance_date) : null;
-                    const completedDate = item.delivery_completion_date ? new Date(item.delivery_completion_date) : null;
+            // Filtering announcements based on the new logic
+            const completedAnnouncements = donationsData.flatMap(announcement => 
+                announcement.items.filter(item => 
+                    item.delivery_completion_date != null &&
+                    new Date(item.delivery_completion_date) >= start &&
+                    new Date(item.delivery_completion_date) <= end
+                )
+            );
 
-                    return (
-                        (!createdDate || createdDate >= start && createdDate <= end) ||
-                        (!completedDate || completedDate >= start && completedDate <= end)
-                    );
-                });
-            });
+            // Updated New Announcements logic with rescuer_acceptance_date condition 
+            //Exageration since the completion date will happend AFTER the rescuer acceptance date anyways...
+            const newAnnouncements = donationsData.flatMap(announcement => 
+                announcement.items.filter(item => 
+                    item.citizen_acceptance_date != null && 
+                    new Date(item.citizen_acceptance_date) <= end &&
+                    (item.delivery_completion_date == null || new Date(item.delivery_completion_date) > end) &&
+                    (item.rescuer_acceptance_date == null || new Date(item.rescuer_acceptance_date) > end)
+                )
+            );
 
             return {
-                unacceptedRequests: filteredRequests.filter(req => req.created_at && !req.accepted_at),
-                completedRequests: filteredRequests.filter(req => req.completed_at && req.status === 'Completed'),
-                unacceptedDonations: filteredDonations.filter(item => !item.citizen_acceptance_date),
-                completedDonations: filteredDonations.filter(item => item.delivery_completion_date)
+                completedRequests: completedRequests,
+                newRequests: newRequests,
+                completedAnnouncements: completedAnnouncements,
+                newAnnouncements: newAnnouncements
             };
         }
 
         function calculateMetrics(filteredData) {
             return {
-                unacceptedRequestsCount: filteredData.unacceptedRequests.length,
                 completedRequestsCount: filteredData.completedRequests.length,
-                unacceptedDonationsCount: filteredData.unacceptedDonations.length,
-                completedDonationsCount: filteredData.completedDonations.length
+                newRequestsCount: filteredData.newRequests.length,
+                completedAnnouncementsCount: filteredData.completedAnnouncements.length,
+                newAnnouncementsCount: filteredData.newAnnouncements.length
             };
         }
 
@@ -74,15 +89,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             myChart = new Chart(ctx, {
-                type: 'bar', // Set the chart type to 'bar' by default
+                type: 'bar',
                 data: {
-                    labels: ['Unaccepted Requests', 'Completed Requests', 'Unaccepted Donations', 'Completed Donations'],
+                    labels: ['New Requests', 'Completed Requests', 'New Announcements', 'Completed Announcements'],
                     datasets: [{
                         data: [
-                            metrics.unacceptedRequestsCount,
+                            metrics.newRequestsCount,
                             metrics.completedRequestsCount,
-                            metrics.unacceptedDonationsCount,
-                            metrics.completedDonationsCount
+                            metrics.newAnnouncementsCount,
+                            metrics.completedAnnouncementsCount
                         ],
                         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
                     }]
@@ -111,8 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Initial display logic
-        const initialFilteredData = filterData('2024-01-01', '2024-12-31');
+        // Initial display logic using the current year as default
+        const initialFilteredData = filterData(initialStartDate, initialEndDate);
         const initialMetrics = calculateMetrics(initialFilteredData);
         createChart(initialMetrics);
 
@@ -120,12 +135,17 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('filterForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+            const startDate = document.getElementById('startDate').value || initialStartDate;
+            const endDate = document.getElementById('endDate').value || initialEndDate;
 
-            const filteredData = filterData(startDate, endDate);
-            const metrics = calculateMetrics(filteredData);
-            createChart(metrics);
+            // Compare with initial dates and reload chart if no changes
+            if (startDate === initialStartDate && endDate === initialEndDate) {
+                createChart(initialMetrics);  // Reload the chart with the same data
+            } else {
+                const filteredData = filterData(startDate, endDate);
+                const metrics = calculateMetrics(filteredData);
+                createChart(metrics);
+            }
         });
     }
 
