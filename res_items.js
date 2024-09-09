@@ -198,79 +198,86 @@ function sendItems() {
     var validTransfer = true;
     selectedItems.forEach(function (checkbox) {
         var itemId = checkbox.getAttribute('data-item-id');
-        var item = rescuerInventory.find(item => item.id === itemId);
-
-        if (item) {
-            var rescuerQuantityDetail = item.details.find(detail => detail.detail_name === 'Quantity');
-            if (rescuerQuantityDetail && rescuerQuantityDetail.detail_value < quantityInput) {
-                alert(`Not enough quantity for item ${item.name}. Available: ${rescuerQuantityDetail.detail_value}`);
-                validTransfer = false;
-            }
-        }
-    });
-
-    if (!validTransfer) {
-        return;
-    }
-
-    getRescuerId().then(function (rescuerId) {
-        selectedItems.forEach(function (checkbox) {
-            var itemId = checkbox.getAttribute('data-item-id');
-            var item = rescuerInventory.find(item => item.id === itemId);
+        
+        // Λαμβάνουμε το συνδεδεμένο rescuerId
+        getRescuerId().then(function (rescuerId) {
+            // Βρίσκουμε το αντικείμενο με βάση το itemId ΚΑΙ το rescuerId
+            var item = rescuerInventory.find(item => item.id === itemId && item.rescuerId === rescuerId);
 
             if (item) {
-                var sendItem = adminInventory.find(i => i.id === item.id);
-                if (sendItem) {
-                    // Update quantity if item exists
-                    var sendQuantityDetail = sendItem.details.find(detail => detail.detail_name === 'Quantity');
-                    var rescuerQuantityDetail = item.details.find(detail => detail.detail_name === 'Quantity');
-                    if (sendQuantityDetail && rescuerQuantityDetail) {
-                        sendQuantityDetail.detail_value += quantityInput;
-                        rescuerQuantityDetail.detail_value -= quantityInput;
-                    }
-                } else {
-                    // Add new item if it doesn't exist
-                    sendItem = {
-                        id: item.id,
-                        name: item.name,
-                        category: item.category,
-                        details: item.details.map(detail => ({ ...detail }))
-                    };
+                var rescuerQuantityDetail = item.details.find(detail => detail.detail_name === 'Quantity');
+                if (rescuerQuantityDetail && rescuerQuantityDetail.detail_value < quantityInput) {
+                    alert(`Not enough quantity for item ${item.name}. Available: ${rescuerQuantityDetail.detail_value}`);
+                    validTransfer = false;
+                }
+            } else {
+                alert(`Item not found in rescuer's inventory or belongs to a different rescuer.`);
+                validTransfer = false;
+            }
 
-                    var quantityDetail = sendItem.details.find(detail => detail.detail_name === 'Quantity');
-                    if (quantityDetail) {
-                        quantityDetail.detail_value = quantityInput;
+            if (!validTransfer) {
+                return;
+            }
+
+            selectedItems.forEach(function (checkbox) {
+                var itemId = checkbox.getAttribute('data-item-id');
+                var item = rescuerInventory.find(item => item.id === itemId && item.rescuerId === rescuerId);
+
+                if (item) {
+                    var sendItem = adminInventory.find(i => i.id === item.id);
+                    if (sendItem) {
+                        // Ενημερώνουμε την ποσότητα αν υπάρχει ήδη το αντικείμενο
+                        var sendQuantityDetail = sendItem.details.find(detail => detail.detail_name === 'Quantity');
+                        var rescuerQuantityDetail = item.details.find(detail => detail.detail_name === 'Quantity');
+                        if (sendQuantityDetail && rescuerQuantityDetail) {
+                            sendQuantityDetail.detail_value += quantityInput;
+                            rescuerQuantityDetail.detail_value -= quantityInput;
+                        }
                     } else {
-                        sendItem.details.push({ detail_name: 'Quantity', detail_value: quantityInput });
-                    }
+                        // Προσθέτουμε νέο αντικείμενο αν δεν υπάρχει ήδη
+                        sendItem = {
+                            id: item.id,
+                            name: item.name,
+                            category: item.category,
+                            details: item.details.map(detail => ({ ...detail }))
+                        };
 
-                    adminInventory.push(sendItem);
+                        var quantityDetail = sendItem.details.find(detail => detail.detail_name === 'Quantity');
+                        if (quantityDetail) {
+                            quantityDetail.detail_value = quantityInput;
+                        } else {
+                            sendItem.details.push({ detail_name: 'Quantity', detail_value: quantityInput });
+                        }
 
-                    // Update the quantity in the rescuer inventory
-                    var rescuerQuantityDetail = item.details.find(detail => detail.detail_name === 'Quantity');
-                    if (rescuerQuantityDetail) {
-                        rescuerQuantityDetail.detail_value -= quantityInput;
+                        adminInventory.push(sendItem);
+
+                        // Ενημερώνουμε την ποσότητα στο inventory του διασώστη
+                        var rescuerQuantityDetail = item.details.find(detail => detail.detail_name === 'Quantity');
+                        if (rescuerQuantityDetail) {
+                            rescuerQuantityDetail.detail_value -= quantityInput;
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // Optimistically update the UI immediately
-        displayAdminInventory();
-        displayRescuerInventory(rescuerId);
+            // Ενημερώνουμε αμέσως το UI
+            displayAdminInventory();
+            displayRescuerInventory(rescuerId);
 
-        // Update both rescuer and admin inventories on the server
-        return updateRescuerInventory(rescuerInventory, rescuerId).then(function () {
-            return updateAdminInventory(adminInventory);
-        }).then(function () {
-            return fetchAdminInventory(); // Refresh admin inventory display
-        }).then(function () {
-            return fetchRescuerInventory(); // Refresh rescuer inventory display
+            // Ενημερώνουμε το inventory του διασώστη και του admin στον server
+            return updateRescuerInventory(rescuerInventory, rescuerId).then(function () {
+                return updateAdminInventory(adminInventory);
+            }).then(function () {
+                return fetchAdminInventory(); // Ανανεώνουμε την εμφάνιση του inventory του admin
+            }).then(function () {
+                return fetchRescuerInventory(); // Ανανεώνουμε την εμφάνιση του inventory του διασώστη
+            });
+        }).catch(function (error) {
+            console.error('Error sending items:', error);
         });
-    }).catch(function (error) {
-        console.error('Error sending items:', error);
     });
 }
+
 
 function updateAdminInventoryWithReceivedItems(itemsToSend) {
     return $.ajax({

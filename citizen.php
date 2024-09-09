@@ -25,9 +25,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'citizen') {
 </head>
 <body>
    <table>
-   <h1>Do you want to do a request?</h1>
-   <button onclick="window.location.href = 'request.php';">Request</button>   
-   <button onclick="window.location.href = 'cit_ann.php';">See Annoucements</button>   
+    <div class="container">
+        <button class="go-back" onclick="window.location.href = 'demo.php';">Log Out</button>
+        <h1>What do you want to see?</h1>
+        <button onclick="window.location.href = 'request.php';">Request</button>   
+        <button onclick="window.location.href = 'cit_ann.php';">See Annoucements</button>
+    </div>
    </table>
  
 </html>

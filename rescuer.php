@@ -25,11 +25,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'rescuer') {
 	<title>Welcome Rescuer</title>
 </head>
 <body>
-   <table>
-   <h1>Do you want to see your available items?</h1>
-   <button onclick="window.location.href = 'res_items.php';">Your Items</button>
-   <button onclick="window.location.href = 'res_map.php';">Show Map</button>
-   
+   <table>   
+   <div class="container">
+        <button class="go-back" onclick="window.location.href = 'demo.php';">Log Out</button>
+        <h1>What do you want to see?</h1>
+        <button onclick="window.location.href = 'res_items.php';">Your Items</button>
+        <button onclick="window.location.href = 'res_map.php';">Show Map</button>
+    </div>
    </table>
  
 </html>

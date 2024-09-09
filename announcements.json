@@ -9,7 +9,7 @@
                 "quantity": "5",
                 "citizen_acceptance_date": "2024-08-17T15:54:38.706Z",
                 "rescuer_acceptance_date": "2024-09-02 02:53:13",
-                "delivery_completion_date": null,
+                "delivery_completion_date": "2024-09-02 02:58:34",
                 "rescuer_first_name": "Michalis",
                 "rescuer_last_name": "Zannis"
             },
@@ -18,10 +18,11 @@
                 "citizen_id": "16",
                 "quantity": "5",
                 "citizen_acceptance_date": "2024-08-17T15:58:50.378Z",
-                "rescuer_acceptance_date": "2024-08-31 23:12:04",
-                "delivery_completion_date": "2024-09-01 14:37:06",
+                "rescuer_acceptance_date": "2024-09-07 15:39:44",
+                "delivery_completion_date": null,
                 "rescuer_first_name": "Michalis",
-                "rescuer_last_name": "Zannis"
+                "rescuer_last_name": "Zannis",
+                "rescuer_id": "3"
             },
             {
                 "item_id": "659a815c89dab",
@@ -81,7 +82,7 @@
                 "quantity": "7",
                 "citizen_acceptance_date": "2024-09-02T00:52:32.679Z",
                 "rescuer_acceptance_date": "2024-09-02 02:52:50",
-                "delivery_completion_date": null,
+                "delivery_completion_date": "2024-09-02 11:56:34",
                 "rescuer_first_name": "Michalis",
                 "rescuer_last_name": "Zannis"
             },

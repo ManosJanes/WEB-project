@@ -244,285 +244,286 @@ if (!empty($citizenIds)) {
 
     <div>
         <button id="changeLocation">Change Location</button>
+        <button onclick="window.location.href = 'admin.php';" class="action-button">GO BACK</button>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var map = L.map('map').setView([
-                parseFloat(document.getElementById('map').dataset.adminLat),
-                parseFloat(document.getElementById('map').dataset.adminLng)
-            ], 13);
+    document.addEventListener('DOMContentLoaded', function () {
+        var map = L.map('map').setView([
+            parseFloat(document.getElementById('map').dataset.adminLat),
+            parseFloat(document.getElementById('map').dataset.adminLng)
+        ], 13);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
 
-            var adminLat = parseFloat(document.getElementById('map').dataset.adminLat);
-            var adminLng = parseFloat(document.getElementById('map').dataset.adminLng);
-
-            var adminIcon = L.icon({
-                iconUrl: 'blue.png',
-                iconSize: [45, 50],
-                iconAnchor: [22, 50],
-                popupAnchor: [1, -34]
-            });
-
-            var rescuerIcon = L.icon({
-                iconUrl: 'red.png',
-                iconSize: [45, 50], // Set to default Leaflet icon size
-                iconAnchor: [22, 50], // Set anchor to ensure marker is properly positioned
-                popupAnchor: [1, -34] // Popup anchor offset
-            });
-
-            var citizenIcon = L.icon({
-                iconUrl: 'purple.png',
-                iconSize: [45, 50],
-                iconAnchor: [22, 50],
-                popupAnchor: [1, -34]
-            });
-
-            var adminMarker = L.marker([adminLat, adminLng], { icon: adminIcon }).addTo(map);
-
-            var rescuerMarkers = JSON.parse(document.getElementById('map').dataset.rescuerMarkers);
-            var citizenMarkers = JSON.parse(document.getElementById('map').dataset.citizenMarkers);
-
-            var acceptedRequestMarkers = [];
-            var pendingRequestMarkers = [];
-            var announcementMarkers = [];
-            var activeTaskMarkers = [];
-            var inactiveTaskMarkers = [];
-            var polylines = [];
-            var citizenRequestMarkers = []; // Citizens with accepted requests
-            var citizenAnnouncementMarkers = []; // Citizens with active announcements
-
-            rescuerMarkers.forEach(function (marker) {
-                var popupContent = '<strong>' + marker.res_name + ' ' + marker.res_surname + '</strong><br>' +
-                    'Phone: ' + marker.res_phone + '<br>';
-
-                if (marker.announcements.length > 0) {
-                    popupContent += '<strong>Pending Announcements:</strong><ul>';
-                    marker.announcements.forEach(function (announcement) {
-                        popupContent += '<li>Item ID: ' + announcement.item_id + ', Quantity: ' + announcement.quantity + '</li>';
-                    });
-                    popupContent += '</ul>';
-                } else {
-                    popupContent += '<strong>No Pending Announcements</strong><br>';
-                }
-
-                if (marker.requests.length > 0) {
-                    popupContent += '<strong>Accepted Requests:</strong><ul>';
-                    marker.requests.forEach(function (request) {
-                        popupContent += '<li>Request ID: ' + request.request_id + ', Item ID: ' + request.item_id + ', People Count: ' + request.people_count + ', Accepted At: ' + request.accepted_at + '</li>';
-                    });
-                    popupContent += '</ul>';
-                } else {
-                    popupContent += '<strong>No Accepted Requests</strong><br>';
-                }
-
-                var rescuerMarker = L.marker([marker.res_lat, marker.res_lng], { icon: rescuerIcon }).bindPopup(popupContent).addTo(map);
-
-                if (marker.requests.length > 0) {
-                    acceptedRequestMarkers.push(rescuerMarker);
-                } else {
-                    inactiveTaskMarkers.push(rescuerMarker);
-                }
-
-                if (marker.announcements.length > 0) {
-                    announcementMarkers.push(rescuerMarker);
-                }
-
-                if (marker.requests.some(request => !request.completed_at)) {
-                    activeTaskMarkers.push(rescuerMarker);
-                }
-            });
-
-            citizenMarkers.forEach(function (marker) {
-                var popupContent = '<strong>' + marker.cit_name + ' ' + marker.cit_surname + '</strong><br>' +
-                    'Phone: ' + marker.cit_phone + '<br>';
-
-                if (marker.announcements.length > 0) {
-                    popupContent += '<strong>Announcements:</strong><ul>';
-                    marker.announcements.forEach(function (announcement) {
-                        popupContent += '<li>Item ID: ' + announcement.item_id + ', Quantity: ' + announcement.quantity + '</li>';
-                    });
-                    popupContent += '</ul>';
-                } else {
-                    popupContent += '<strong>No Pending Announcements</strong><br>';
-                }
-
-                if (marker.requests.length > 0) {
-                    popupContent += '<strong>Requests:</strong><ul>';
-                    marker.requests.forEach(function (request) {
-                        if (request.status !== 'Completed') {
-                            popupContent += '<li>Request ID: ' + request.request_id + ', Item ID: ' + request.item_id + ', People Count: ' + request.people_count + ', Status: ' + request.status + '</li>';
-                        }
-                    });
-                    popupContent += '</ul>';
-                } else {
-                    popupContent += '<strong>No Pending Requests</strong><br>';
-                }
-
-                var citizenMarker = L.marker([marker.cit_lat, marker.cit_lng], { icon: citizenIcon }).bindPopup(popupContent).addTo(map);
-
-                if (marker.requests.length > 0 && marker.requests.some(request => request.status !== 'Completed')) {
-                    pendingRequestMarkers.push(citizenMarker);
-                }
-
-                if (marker.requests.length > 0 && marker.requests.some(request => request.status === 'Accepted by rescuer')) {
-                    citizenRequestMarkers.push(citizenMarker);
-                }
-
-                if (marker.announcements.length > 0 && marker.announcements.some(announcement => !announcement.delivery_completion_date)) {
-                    citizenAnnouncementMarkers.push(citizenMarker);
-                }
-            });
-
-            function drawPolylines() {
-                polylines.forEach(function (polyline) {
-                    map.removeLayer(polyline);
-                });
-                polylines = [];
-
-                rescuerMarkers.forEach(function (rescuer) {
-                    rescuer.announcements.forEach(function (announcement) {
-                        var citizen = citizenMarkers.find(c => c.cit_id == announcement.citizen_id);
-                        if (citizen) {
-                            var latlngs = [
-                                [rescuer.res_lat, rescuer.res_lng],
-                                [citizen.cit_lat, citizen.cit_lng]
-                            ];
-                            var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
-                            polylines.push(polyline);
-                        }
-                    });
-
-                    rescuer.requests.forEach(function (request) {
-                        var citizen = citizenMarkers.find(c => c.cit_id == request.citizen_id);
-                        if (citizen) {
-                            var latlngs = [
-                                [rescuer.res_lat, rescuer.res_lng],
-                                [citizen.cit_lat, citizen.cit_lng]
-                            ];
-                            var polyline = L.polyline(latlngs, {color: 'green'}).addTo(map);
-                            polylines.push(polyline);
-                        }
-                    });
-                });
-            }
-
-            drawPolylines();
-
-            function toggleMarkers(markers) {
-                markers.forEach(function (marker) {
-                    if (map.hasLayer(marker)) {
-                        map.removeLayer(marker);
-                    } else {
-                        map.addLayer(marker);
-                    }
-                });
-            }
-
-            function togglePolylines(polylines) {
-                polylines.forEach(function (polyline) {
-                    if (map.hasLayer(polyline)) {
-                        map.removeLayer(polyline);
-                    } else {
-                        map.addLayer(polyline);
-                    }
-                });
-            }
-
-            document.getElementById('toggleAcceptedRequests').addEventListener('click', function () {
-                this.classList.toggle('active');
-                toggleMarkers(acceptedRequestMarkers.concat(citizenRequestMarkers));
-            });
-
-            document.getElementById('togglePendingRequests').addEventListener('click', function () {
-                this.classList.toggle('active');
-                toggleMarkers(pendingRequestMarkers);
-            });
-
-            document.getElementById('toggleAnnouncements').addEventListener('click', function () {
-                this.classList.toggle('active');
-                toggleMarkers(announcementMarkers.concat(citizenAnnouncementMarkers));
-            });
-
-            document.getElementById('toggleActiveTasks').addEventListener('click', function () {
-                this.classList.toggle('active');
-                toggleMarkers(activeTaskMarkers);
-            });
-
-            document.getElementById('toggleInactiveTasks').addEventListener('click', function () {
-                this.classList.toggle('active');
-                toggleMarkers(inactiveTaskMarkers);
-            });
-
-            document.getElementById('toggleLines').addEventListener('click', function () {
-                this.classList.toggle('active');
-                togglePolylines(polylines);
-            });
-
-            var wasDragged = false;
-
-            function changeLocation() {
-                if (!wasDragged) {
-                    adminMarker.dragging.enable();
-                    wasDragged = true;
-                } else {
-                    adminMarker.dragging.disable();
-                    wasDragged = false;
-
-                    if (confirm('Do you want to keep this position?')) {
-                        var newLatLng = adminMarker.getLatLng();
-                        updateMarkerPosition(adminMarker, newLatLng.lat, newLatLng.lng);
-                    } else {
-                        adminMarker.setLatLng([adminLat, adminLng]);
-                    }
-                }
-            }
-
-            function updateMarkerPosition(marker, lat, lng) {
-                fetch('map_greece.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        update_marker: true,
-                        lat: lat,
-                        lng: lng,
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Position updated successfully.');
-                        updateAllAdminMarkers(data.admins);
-                    } else {
-                        alert('Error updating position. Please try again.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while updating the position.');
-                });
-            }
-
-            function updateAllAdminMarkers(admins) {
-                admins.forEach(function (admin) {
-                    if (admin.adm_id !== currentUserId) {
-                        rescuerMarkers.forEach(function (marker) {
-                            if (marker.options.adm_id === admin.adm_id) {
-                                marker.setLatLng([admin.adm_lat, admin.adm_lng]);
-                            }
-                        });
-                    }
-                });
-            }
-
-            document.getElementById('changeLocation').addEventListener('click', changeLocation);
+        // Define the custom icons for admin, rescuer, and citizen
+        var adminIcon = L.icon({
+            iconUrl: 'blue.png',
+            iconSize: [45, 50],  // Icon width and height
+            iconAnchor: [22, 50], // Anchor point of the icon
+            popupAnchor: [1, -34] // Popup anchor offset
         });
 
-    </script>
+        var rescuerIcon = L.icon({
+            iconUrl: 'red.png',
+            iconSize: [45, 50],
+            iconAnchor: [22, 50],
+            popupAnchor: [1, -34]
+        });
+
+        var citizenIcon = L.icon({
+            iconUrl: 'purple.png',
+            iconSize: [45, 50],
+            iconAnchor: [22, 50],
+            popupAnchor: [1, -34]
+        });
+
+        // Add the admin marker with custom icon
+        var adminLat = parseFloat(document.getElementById('map').dataset.adminLat);
+        var adminLng = parseFloat(document.getElementById('map').dataset.adminLng);
+        var adminMarker = L.marker([adminLat, adminLng], { icon: adminIcon }).addTo(map);
+
+        // Parse the rescuer and citizen marker data from the dataset
+        var rescuerMarkers = JSON.parse(document.getElementById('map').dataset.rescuerMarkers);
+        var citizenMarkers = JSON.parse(document.getElementById('map').dataset.citizenMarkers);
+
+        var toggles = {
+            acceptedRequests: true,
+            pendingRequests: true,
+            announcements: true,
+            activeTasks: false,
+            inactiveTasks: false
+        };
+
+        var markerLayers = [];
+        var polylines = [];
+
+        // Define the function to create popups
+        function createPopupContent(marker) {
+            var popupContent = '';
+
+            if (marker.res_name && marker.res_surname) {
+                popupContent = '<strong>' + marker.res_name + ' ' + marker.res_surname + '</strong><br>' +
+                    'Phone: ' + marker.res_phone + '<br>';
+            } else if (marker.cit_name && marker.cit_surname) {
+                popupContent = '<strong>' + marker.cit_name + ' ' + marker.cit_surname + '</strong><br>' +
+                    'Phone: ' + marker.cit_phone + '<br>';
+            }
+
+            if (toggles.announcements && marker.announcements && marker.announcements.length > 0) {
+                popupContent += '<strong>Pending Announcements:</strong><ul>';
+                marker.announcements.forEach(function (announcement) {
+                    popupContent += '<li>Item ID: ' + announcement.item_id + ', Quantity: ' + announcement.quantity + '</li>';
+                });
+                popupContent += '</ul>';
+            }
+
+            if (toggles.acceptedRequests && marker.requests && marker.requests.length > 0) {
+                popupContent += '<strong>Accepted Requests:</strong><ul>';
+                marker.requests.forEach(function (request) {
+                    popupContent += '<li>Request ID: ' + request.request_id + ', Item ID: ' + request.item_id + ', People Count: ' + request.people_count + ', Accepted At: ' + request.accepted_at + '</li>';
+                });
+                popupContent += '</ul>';
+            }
+
+            return popupContent;
+        }
+
+        // Add rescuer markers with custom icon
+        rescuerMarkers.forEach(function (markerData) {
+            var marker = L.marker([markerData.res_lat, markerData.res_lng], { icon: rescuerIcon })
+                .bindPopup(createPopupContent(markerData))
+                .addTo(map);
+
+            markerLayers.push({
+                marker: marker,
+                data: markerData
+            });
+        });
+
+        // Add citizen markers with custom icon
+        citizenMarkers.forEach(function (markerData) {
+            var marker = L.marker([markerData.cit_lat, markerData.cit_lng], { icon: citizenIcon })
+                .bindPopup(createPopupContent(markerData))
+                .addTo(map);
+
+            markerLayers.push({
+                marker: marker,
+                data: markerData
+            });
+        });
+
+        // Draw polylines between rescuers and citizens
+        function drawPolylines() {
+            polylines.forEach(function (polyline) {
+                map.removeLayer(polyline);
+            });
+            polylines = [];
+
+            rescuerMarkers.forEach(function (rescuer) {
+                rescuer.announcements.forEach(function (announcement) {
+                    var citizen = citizenMarkers.find(c => c.cit_id == announcement.citizen_id);
+                    if (citizen) {
+                        var latlngs = [
+                            [rescuer.res_lat, rescuer.res_lng],
+                            [citizen.cit_lat, citizen.cit_lng]
+                        ];
+                        var polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
+                        polylines.push(polyline);
+                    }
+                });
+
+                rescuer.requests.forEach(function (request) {
+                    var citizen = citizenMarkers.find(c => c.cit_id == request.citizen_id);
+                    if (citizen) {
+                        var latlngs = [
+                            [rescuer.res_lat, rescuer.res_lng],
+                            [citizen.cit_lat, citizen.cit_lng]
+                        ];
+                        var polyline = L.polyline(latlngs, { color: 'green' }).addTo(map);
+                        polylines.push(polyline);
+                    }
+                });
+            });
+        }
+
+        drawPolylines();
+
+        // Function to toggle polylines visibility
+        function togglePolylines(polylines) {
+            polylines.forEach(function (polyline) {
+                if (map.hasLayer(polyline)) {
+                    map.removeLayer(polyline);
+                } else {
+                    map.addLayer(polyline);
+                }
+            });
+        }
+
+        // Update markers based on task visibility toggles
+        function updateMarkers() {
+            markerLayers.forEach(function (layer) {
+                var isRescuer = layer.data.res_name && layer.data.res_surname;
+                var hasAnnouncements = layer.data.announcements && layer.data.announcements.length > 0;
+                var hasRequests = layer.data.requests && layer.data.requests.length > 0;
+
+                var isActive = hasAnnouncements || hasRequests;
+                var isInactive = !isActive;
+
+                var shouldShowMarker = true;
+
+                if (isRescuer) {
+                    if (toggles.activeTasks && isActive) {
+                        shouldShowMarker = false;
+                    }
+
+                    if (toggles.inactiveTasks && isInactive) {
+                        shouldShowMarker = false;
+                    }
+                }
+
+                if (!shouldShowMarker) {
+                    map.removeLayer(layer.marker);
+                } else {
+                    if (!map.hasLayer(layer.marker)) {
+                        layer.marker.addTo(map);
+                    }
+                    var content = createPopupContent(layer.data);
+                    layer.marker.setPopupContent(content);
+                }
+            });
+        }
+
+        // Event listeners for toggling marker visibility
+        document.getElementById('toggleAcceptedRequests').addEventListener('click', function () {
+            this.classList.toggle('active');
+            toggles.acceptedRequests = !toggles.acceptedRequests;
+            updateMarkers();
+        });
+
+        document.getElementById('togglePendingRequests').addEventListener('click', function () {
+            this.classList.toggle('active');
+            toggles.pendingRequests = !toggles.pendingRequests;
+            updateMarkers();
+        });
+
+        document.getElementById('toggleAnnouncements').addEventListener('click', function () {
+            this.classList.toggle('active');
+            toggles.announcements = !toggles.announcements;
+            updateMarkers();
+        });
+
+        document.getElementById('toggleActiveTasks').addEventListener('click', function () {
+            this.classList.toggle('active');
+            toggles.activeTasks = !toggles.activeTasks;
+            updateMarkers();
+        });
+
+        document.getElementById('toggleInactiveTasks').addEventListener('click', function () {
+            this.classList.toggle('active');
+            toggles.inactiveTasks = !toggles.inactiveTasks;
+            updateMarkers();
+        });
+
+        document.getElementById('toggleLines').addEventListener('click', function () {
+            this.classList.toggle('active');
+            togglePolylines(polylines);
+        });
+
+        // Initial update of markers and polylines
+        updateMarkers();
+
+        // Handle admin marker dragging and position update
+        var wasDragged = false;
+
+        function changeLocation() {
+            if (!wasDragged) {
+                adminMarker.dragging.enable();
+                wasDragged = true;
+            } else {
+                adminMarker.dragging.disable();
+                wasDragged = false;
+
+                if (confirm('Do you want to keep this position?')) {
+                    var newLatLng = adminMarker.getLatLng();
+                    updateMarkerPosition(adminMarker, newLatLng.lat, newLatLng.lng);
+                } else {
+                    adminMarker.setLatLng([adminLat, adminLng]);
+                }
+            }
+        }
+
+        function updateMarkerPosition(marker, lat, lng) {
+            fetch('map_greece.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    update_marker: true,
+                    lat: lat,
+                    lng: lng,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Position updated successfully.');
+                } else {
+                    alert('Error updating position. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the position.');
+            });
+        }
+
+        document.getElementById('changeLocation').addEventListener('click', changeLocation);
+    });
+</script>
+
 </body>
 </html>

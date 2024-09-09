@@ -29,8 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,7 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
 
-    <div id="map"></div>
+    <!-- Pass citizen_id as a data attribute to the map div -->
+    <div id="map" data-citizen-id="<?php echo isset($_GET['user_id']) ? (int)$_GET['user_id'] : ''; ?>"></div>
     <button id="confirmButton" onclick="showConfirmationDialog()">Confirm Location</button>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
@@ -58,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         var map = L.map('map').setView([0, 0], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: 'Â© OpenStreetMap contributors'
         }).addTo(map);
 
         var marker = L.marker([0, 0], { draggable: true }).addTo(map);
@@ -80,16 +79,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Function to update the citizen's location on the server
         function updateCitizenLocation(lat, lng) {
-            var citizen_id = <?php echo isset($_GET['user_id']) ? (int)$_GET['user_id'] : 'null'; ?>;
-            //console.log('citizen_id:', citizen_id);
+            var mapElement = document.getElementById('map');
+            var citizen_id = mapElement.dataset.citizenId;
 
-            if (citizen_id !== null) {
+            if (citizen_id) {
                 fetch('register_map.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'lat=' + lat + '&lng=' + lng + '&citizen_id=' + citizen_id,
+                    body: 'lat=' + encodeURIComponent(lat) + '&lng=' + encodeURIComponent(lng) + '&citizen_id=' + encodeURIComponent(citizen_id),
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -108,8 +107,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 alert("Invalid user ID.");
             }
         }
-
-
     </script>
 </body>
 </html>

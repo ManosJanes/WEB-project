@@ -58,6 +58,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'rescuer') {
 
     <button id="transferButton">Transfer to Rescuer Inventory</button>
     <button id="sendButton">Send to Admin Inventory</button>
+    <button onclick="window.location.href = 'rescuer.php';" class="action-button">GO BACK</button>
+
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="res_items.js"></script>

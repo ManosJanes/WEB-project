@@ -1,6 +1,6 @@
 <?php
 // admin.php
-include 'access.php'; // Include for session management and access control
+include 'access.php';
 
 // Start the session
 session_start();
@@ -16,20 +16,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Setting the pages character encoding -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Link to my stylesheet -->
     <link rel="stylesheet" href="admin.css">
     <title>Welcome Admin</title>
 </head>
 <body>
-    <!-- Your admin page content goes here -->
-    <table>
+    <div class="container">
+        <button class="go-back" onclick="window.location.href = 'demo.php';">Log Out</button>
+        <h1>What do you want to see?</h1>
         <button onclick="window.location.href = 'map_greece.php';">Show Map</button>
-        <h1>&nbsp; &nbsp; &nbsp; &nbsp; What do you want to see?<br></br><br></br><br></br><br></h1>
         <button onclick="window.location.href = 'food.php';">Inventory</button>
         <button onclick="window.location.href = 'res_register.php';">Register a Rescuer</button>
-        <button onclick="window.location.href = 'annoucements.php';">Make an Announcement</button>
-        <button onclick="window.location.href = 'charts.php';">View Charts</button> <!-- New button to access charts.php -->
-    </table>
+        <button onclick="window.location.href = 'annoucements.php';">Make an announcement</button>
+        <button onclick="window.location.href = 'charts.php';">Show Stats</button>
+    </div>
 </body>
 </html>

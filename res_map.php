@@ -66,6 +66,7 @@ if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == tru
         $announcementId = $_POST['announcementId'];
         $itemId = $_POST['itemId'];
         $acceptedAt = date('Y-m-d H:i:s');
+        $rescuerId = $_SESSION['user_id'];
 
         // Load and decode the JSON file
         $jsonAnnouncementsData = file_get_contents('announcements.json');
@@ -78,6 +79,7 @@ if (isset($_POST['accept_announcement']) && $_POST['accept_announcement'] == tru
                 foreach ($announcement['items'] as &$item) {
                     if ($item['item_id'] == $itemId) {
                         $item['rescuer_acceptance_date'] = $acceptedAt;
+                        $item['rescuer_id'] = $rescuerId;
                         $item['rescuer_first_name'] = $rescuerName;
                         $item['rescuer_last_name'] = $rescuerSurname;
                         $announcementFound = true;
@@ -109,6 +111,7 @@ if (isset($_POST['accept_request']) && $_POST['accept_request'] == true) {
     if ($totalAcceptedItems < 4) {
         $requestId = $_POST['requestId'];
         $acceptedAt = date('Y-m-d H:i:s');
+        $rescuerId = $_SESSION['user_id'];
 
         // Load and decode the JSON file
         $jsonRequestsData = file_get_contents('requests.json');
@@ -119,6 +122,7 @@ if (isset($_POST['accept_request']) && $_POST['accept_request'] == true) {
         foreach ($requests as &$request) {
             if ($request['request_id'] == $requestId) {
                 $request['accepted_at'] = $acceptedAt;
+                $request['rescuer_id'] = $rescuerId;
                 $request['rescuerName'] = $rescuerName;
                 $request['rescuerSurname'] = $rescuerSurname;
                 $request['status'] = "Accepted by rescuer";
@@ -234,7 +238,8 @@ foreach ($requests as $request) {
         'people_count' => $request['people_count'] ?? null,
         'accepted_at' => $request['accepted_at'] ?? null,
         'completed_at' => $request['completed_at'] ?? null,
-        'status' => $request['status'] ?? null
+        'status' => $request['status'] ?? null,
+        'rescuer_id' => $request['rescuer_id'] ?? null
     ];
 }
 
@@ -257,6 +262,7 @@ foreach ($announcements as $announcement) {
             'quantity' => $item['quantity'] ?? null,
             'rescuer_acceptance_date' => $item['rescuer_acceptance_date'] ?? null,
             'delivery_completion_date' => $item['delivery_completion_date'] ?? null,
+            'rescuer_id' => $item['rescuer_id'] ?? null
         ];
     }
 }
@@ -349,11 +355,12 @@ if (!empty($citizenIds)) {
          data-rescuer-lat="<?php echo $rescuerMarker['res_lat']; ?>"
          data-rescuer-lng="<?php echo $rescuerMarker['res_lng']; ?>"
          data-citizen-markers='<?php echo json_encode($citizenMarkers); ?>'
-         data-announcements='<?php echo json_encode($announcements); ?>'></div>
-
+         data-announcements='<?php echo json_encode($announcements); ?>'
+         data-rescuer-id="<?php echo $_SESSION['user_id']; ?>" ></div>
     <div id="controls">
         <button id="changeLocation">Change Position</button>
         <button onclick="window.location.href = 'tasks.php';">Your Tasks</button>
+        <button onclick="window.location.href = 'rescuer.php';" class="action-button">GO BACK</button>
     </div>
 
     <script>
@@ -406,6 +413,7 @@ if (!empty($citizenIds)) {
             var rescuerLng = mapElement.getAttribute('data-rescuer-lng');
             var citizenMarkers = JSON.parse(mapElement.getAttribute('data-citizen-markers'));
             var announcements = JSON.parse(mapElement.getAttribute('data-announcements'));
+            var rescuerId = mapElement.getAttribute('data-rescuer-id'); 
 
             var map = L.map('map').setView([rescuerLat, rescuerLng], 13);
 
@@ -537,7 +545,7 @@ if (!empty($citizenIds)) {
                             }
                             
 
-                            if (request.status === "Accepted by rescuer" && showAcceptedRequests) {
+                            if (request.status === "Accepted by rescuer" && showAcceptedRequests && request.rescuer_id == rescuerId) {
                                 popupContent += requestContent;
                                 if (showLines) {
                                     polylines.push(L.polyline([
@@ -568,7 +576,7 @@ if (!empty($citizenIds)) {
                                 announcementContent += `<hr>`;
                                 popupContent += announcementContent;
 
-                                if (announcement.rescuer_acceptance_date && showLines) {
+                                if (announcement.rescuer_acceptance_date && showLines && announcement.rescuer_id == rescuerId) {
                                     polylines.push(L.polyline([
                                         [rescuerLat, rescuerLng],
                                         [marker.cit_lat, marker.cit_lng]
